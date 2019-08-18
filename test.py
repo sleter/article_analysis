@@ -3,7 +3,7 @@ from DataHarvesting.sharedcount import SharedCountApiClient
 
 def main():
     dh = DataHarvester()
-    print(dh.get_en_news_sources)
+    dh.fetch_data(from_date='2019-08-17', to_date='2019-08-17')
   
 if __name__== "__main__":
   main()
