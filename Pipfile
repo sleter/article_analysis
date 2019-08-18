@@ -7,8 +7,11 @@ verify_ssl = true
 pylint = "*"
 
 [packages]
-newsapi-python = "*"
-requests = "*"
+newsapi-python = "==0.2.5"
+requests = "==2.21.0"
+socialshares = "==1.1.0"
+grequests = "==0.4.0"
+pandas = "==0.25.0"
 
 [requires]
 python_version = "3.7"
