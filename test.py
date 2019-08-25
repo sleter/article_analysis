@@ -4,7 +4,9 @@ from datetime import date
 
 def main():
     dh = DataHarvester()
-    dh.fetch_data(from_date=date(2019, 8, 17), to_date=date(2019, 8, 18))
-  
+    # df = dh.fetch_data(from_date=date(2019, 8, 1), to_date=date(2019, 8, 1))
+    df = dh.fetch_top_articles()
+    print(df.columns())
+    
 if __name__== "__main__":
   main()
