@@ -1,7 +1,8 @@
 from utils.read_config import ConfigReader
-from utils.helpers import flatten
+from utils.helpers import flatten, get_dates_between
 from newsapi import NewsApiClient
 from .sharedcount import SharedCountApiClient
+from multiprocessing.pool import Pool
 import socialshares
 import datetime
 import pandas as pd
@@ -13,6 +14,24 @@ class DataHarvester():
         cf = ConfigReader('config.json')
         self.newsapi = NewsApiClient(api_key=cf.get_news_api_key())
         self.sharedcount = SharedCountApiClient(api_key=cf.get_sharedcount_api_key())
+        
+        self.sources = \
+            ["abc-news",
+            "al-jazeera-english",
+            "business-insider",
+            "cbs-news",
+            "cnn",
+            "google-news",
+            "nbc-news",
+            "newsweek",
+            "reddit-r-all",
+            "the-irish-times",
+            "the-new-york-times",
+            "reuters",
+            "the-wall-street-journal",
+            "espn",
+            "bbc-news"]
+        
         # self.widgets=[
         # ' [', progressbar.Timer(), '] ',
         # progressbar.Bar(),
@@ -21,9 +40,9 @@ class DataHarvester():
         # for i in progressbar.progressbar(range(1, 1), redirect_stdout=True, widgets=self.widgets):
     
     def get_en_news_sources(self):
-        sources = self.newsapi.get_sources(language="en")
+        all_sources = self.newsapi.get_sources(language="en")
         sources_list = []
-        for key, value in sources.items():
+        for key, value in all_sources.items():
             if key == "sources":
                 for s in value:
                     sources_list.append(s["id"])
@@ -33,25 +52,28 @@ class DataHarvester():
         flattened_articles = [flatten(article) for article in articles]
         return pd.DataFrame(flattened_articles)
     
-    def fetch_data(self, from_date=datetime.datetime.now().date(), to_date=datetime.datetime.now().isoformat(), language='en', sort_by=None, page_size=100):
-        sources = "abc-news," + \
-                  "al-jazeera-english," + \
-                  "business-insider," + \
-                  "cbs-news," + \
-                  "cnn," + \
-                  "google-news," + \
-                  "nbc-news," + \
-                  "newsweek," + \
-                  "reddit-r-all," + \
-                  "the-irish-times," + \
-                  "the-new-york-times," + \
-                  "reuters," + \
-                  "the-wall-street-journal," + \
-                  "espn," + \
-                  "bbc-news"
+    def fetch_data_daily(self, date, language, sort_by, page_size):
+        df = pd.DataFrame()
+        for source in self.sources:
+            data_everything = self.newsapi.get_everything(sources=source, from_param=str(date), to=str(date), language=language, sort_by=sort_by, page_size=page_size)
+            df_temp = self._create_df(data_everything["articles"])
+            df.append(df_temp)
+        return df
+    
+    def fetch_data(self, from_date=datetime.date.today(), to_date=datetime.date.today(), language='en', sort_by=None, page_size=100):
+        dates = get_dates_between(from_date, to_date)
+        df = pd.DataFrame()
         
-        data_everything = self.newsapi.get_everything(sources=sources, from_param=str(from_date), to=to_date, language=language, sort_by=sort_by, page_size=page_size)
-        df_everything = self._create_df(data_everything["articles"])
-        print(df_everything)
+        pool = Pool(processes=len(self.sources))
+        input_parameters = [(date, language, sort_by, page_size) for date in dates]
+        dfs = pool.starmap(self.fetch_data_daily, input_parameters)
+        for df_elem in dfs:
+            df = df.append(df_elem) 
+        pool.close()
+        print(df)
+        return df
+        
+        
+        
         
         

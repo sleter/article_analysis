@@ -1,4 +1,5 @@
 import collections
+from datetime import date, timedelta
 
 def flatten(d, parent_key='', sep='_'):
     items = []
@@ -9,3 +10,9 @@ def flatten(d, parent_key='', sep='_'):
         else:
             items.append((new_key, v))
     return dict(items)
+
+def get_dates_between(from_date, to_date):
+    delta = to_date - from_date
+    days = [from_date+timedelta(days=i) for i in range(delta.days +1)]
+    return days
+    
