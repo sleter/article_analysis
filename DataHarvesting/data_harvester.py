@@ -76,12 +76,26 @@ class DataHarvester():
         df = pd.DataFrame()
         for source in self.sources:
             data_top = self.newsapi.get_top_headlines(q=None, sources=source, language='en', country=None, category=None, page_size=100)
+            print(data_top)
             df_temp = self._create_df(data_top["articles"])
             df = df.append(df_temp)
         return df
     
-    def append_top_articles(self, df):
-        pass 
+    def change_column_names(self, df):
+        return df.rename({'urlToImage' : 'url_to_image', 'publishedAt' : 'published_at'}, axis=1)
     
-    def save_csv(self, df, path):
-        df.to_csv(path)
+    def append_top_articles(self, df_all, df_top):
+        top_list = []
+        for url in df_all['url']:
+            if url in df_top['url'].unique():
+                top_list.append(1)
+            else:
+                top_list.append(0)
+        df_all["top_article"] = top_list
+        return df_all
+    
+    def append_social_shares(self, df):
+        for url in df['url']:
+            counts = socialshares.fetch(url, ['google'])
+            print(counts)
+            return False
