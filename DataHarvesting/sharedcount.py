@@ -9,11 +9,15 @@ class SharedCountApiClient():
         NoneApiKeyError: Raised when API key was not provided
     
     """
-    def __init__(self, api_key=None):
-        if api_key is None:
+    def __init__(self, social_share_api_key=None, facebook_graph_api_key=None):
+        if (social_share_api_key or facebook_graph_api_key) is None:
             raise NoneApiKeyError
         else:
-            self.api_key = api_key
+            self.api_key = social_share_api_key
+            self.facebook_graph_api_key = facebook_graph_api_key
+    
+    def change_token(self, facebook_graph_api_key):
+        self.facebook_graph_api_key = facebook_graph_api_key
     
     def get_counts(self, url : str):
         payload = {
@@ -41,6 +45,14 @@ class SharedCountApiClient():
         r = requests.get("https://api.sharedcount.com/v1.0/status")
         data = json.loads(r.text)
         print(data)
+        
+    def get_facebook_engagement(self, url):
+        params = (
+            ('id', url),
+            ('fields', 'engagement'),
+            ('access_token', self.facebook_graph_api_key),)
+        r = requests.get('https://graph.facebook.com/v4.0/', params=params)
+        return json.loads(r.text)
     
 class NoneApiKeyError(Exception):
     """

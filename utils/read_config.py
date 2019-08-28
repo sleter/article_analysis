@@ -16,3 +16,10 @@ class ConfigReader():
     
     def get_sharedcount_api_key(self):
         return self.data['SHAREDCOUNT_KEY']
+    
+    def get_facebookgraph_api_key(self):
+        fb = self.data['FACEBOOKGRAPHAPI_KEY']
+        fb1 = self.data['FACEBOOKGRAPHAPI_KEY1']
+        fb2 = self.data['FACEBOOKGRAPHAPI_KEY2']
+        fb3 = self.data['FACEBOOKGRAPHAPI_KEY3']
+        return (fb, fb1, fb2, fb3)
