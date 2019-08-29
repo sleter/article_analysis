@@ -23,10 +23,8 @@ class DataHarvester():
             "business-insider",
             "cbs-news",
             "cnn",
-            # "google-news", # wrong urls
-            "nbc-news",
             "newsweek",
-            "reddit-r-all",
+            # "reddit-r-all",
             "the-irish-times",
             "the-new-york-times",
             "reuters",
@@ -54,7 +52,7 @@ class DataHarvester():
         return pd.DataFrame(flattened_articles)
     
     @timing
-    def fetch_data_daily(self, date, language='en', sort_by=None, page_size=100):
+    def fetch_data_daily(self, date, language='en', sort_by=None, page_size=80):
         df = pd.DataFrame()
         for source in self.sources:
             data_everything = self.newsapi.get_everything(sources=source, from_param=str(date), to=str(date), language=language, sort_by=sort_by, page_size=page_size)
@@ -62,7 +60,7 @@ class DataHarvester():
             df = df.append(df_temp)
         return df
     
-    def fetch_data(self, from_date=datetime.date.today(), to_date=datetime.date.today(), language='en', sort_by=None, page_size=100):
+    def fetch_data(self, from_date=datetime.date.today(), to_date=datetime.date.today(), language='en', sort_by=None, page_size=80):
         dates = get_dates_between(from_date, to_date)
         df = pd.DataFrame()
         
@@ -77,7 +75,7 @@ class DataHarvester():
     def fetch_top_articles(self):
         df = pd.DataFrame()
         for source in self.sources:
-            data_top = self.newsapi.get_top_headlines(q=None, sources=source, language='en', country=None, category=None, page_size=100)
+            data_top = self.newsapi.get_top_headlines(q=None, sources=source, language='en', country=None, category=None, page_size=80)
             df_temp = self._create_df(data_top["articles"])
             df = df.append(df_temp)
         return df
@@ -89,23 +87,39 @@ class DataHarvester():
     def append_top_articles(self, df_all):
         df_top = self.fetch_top_articles()
         top_list = []
+        counter = 0
         for url in df_all['url']:
             if url in df_top['url'].unique():
                 top_list.append(1)
+                counter += 1
             else:
                 top_list.append(0)
+        alter_top_list = []
+        alter_top_list_url = []
+        for nurl in df_top['url']:
+            if nurl not in df_all['url'].unique():
+                alter_top_list_url.append(nurl)
+                alter_top_list.append(1)
+                counter += 1
+        df_pom = df_top.set_index("url").loc[alter_top_list_url]
+        df_pom = df_pom.reset_index()
+        df_all = df_all.append(df_pom, sort=False)
+        top_list.extend(alter_top_list)
         df_all["top_article"] = top_list
-        return (df_all, len(top_list))
+        return (df_all, counter)
     
     @timing
     def append_facebook_engagement(self, df):
         fe_list = []
-        api_key_counter=1
+        api_key_counter=0
         for url in progressbar.progressbar(df['url'], redirect_stdout=True, widgets=self.widgets):
             fe = self.sharedcount.get_facebook_engagement(url)
             if 'error' in fe.keys():
-                self.sharedcount.change_token(self.fb_api_keys[api_key_counter])
                 api_key_counter += 1
+                self.sharedcount.change_token(self.fb_api_keys[api_key_counter])
+                if api_key_counter > 3:
+                    print("All limits reached !!! - Data loss")
+                    break
                 print('Error - API limit reached \n    * API changed & Row processed once again')
                 fe = self.sharedcount.get_facebook_engagement(url)
             # https://stackoverflow.com/questions/14092989/facebook-api-4-application-request-limit-reached
@@ -127,20 +141,16 @@ class DataHarvester():
             'top_count': metadata_tuple[2],
             'append_social_time': metadata_tuple[3],
             'drop_duplicates_time': metadata_tuple[4],
+            'all_count': metadata_tuple[5]
         }
         with open('Data/metadata_{date:%Y-%m-%d_%H:%M:%S}.json'.format(date=date), 'w', encoding='utf-8') as f:
             json.dump(metadata_dict, f, ensure_ascii=False, indent=4)
     
     @timing
     def harvest_daily(self):
-        # print("Fetching data ... ")
-        # df, fetch_time = self.fetch_data_daily(datetime.date.today())
-        # print("Amount of fetched data: {}".format(df.count())+'\n\n --------------')
-        # df.to_csv("Data/data_all.csv")
-        
-        fetch_time = 0
-        
-        df = pd.read_csv("Data/data_all.csv")
+        print("Fetching data ... ")
+        df, fetch_time = self.fetch_data_daily(datetime.date.today())
+        print("Amount of fetched data: {}".format(df.count())+'\n\n --------------')
         print("Data enrichment with top articles ... \n\n --------------")
         df_with_top_count, append_top_time = self.append_top_articles(df)
         df = df_with_top_count[0]
@@ -151,5 +161,7 @@ class DataHarvester():
         df, drop_duplicates_time = self.drop_duplicates(df)
         print("Saving dataframe to Data/ directory ... \n\n --------------")
         date = datetime.datetime.now()
+        df = self.change_column_names(df)
+        df_count = df.count()
         df.to_csv("Data/data_all_{date:%Y-%m-%d_%H:%M:%S}.csv".format(date=date))
-        self.save_metadata((fetch_time, append_top_time, top_count, append_social_time, drop_duplicates_time), date)
+        self.save_metadata((fetch_time, append_top_time, top_count, append_social_time, drop_duplicates_time, df_count), date)
