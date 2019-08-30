@@ -22,4 +22,5 @@ class ConfigReader():
         fb1 = self.data['FACEBOOKGRAPHAPI_KEY1']
         fb2 = self.data['FACEBOOKGRAPHAPI_KEY2']
         fb3 = self.data['FACEBOOKGRAPHAPI_KEY3']
-        return (fb, fb1, fb2, fb3)
+        fb4 = self.data['FACEBOOKGRAPHAPI_KEY4']
+        return (fb, fb1, fb2, fb3, fb4)

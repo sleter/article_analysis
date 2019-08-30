@@ -9,6 +9,7 @@ import pandas as pd
 import json
 import time
 import progressbar
+import dateutil
 
 class DataHarvester():
     def __init__(self):
@@ -24,7 +25,6 @@ class DataHarvester():
             "cbs-news",
             "cnn",
             "newsweek",
-            # "reddit-r-all",
             "the-irish-times",
             "the-new-york-times",
             "reuters",
@@ -117,13 +117,13 @@ class DataHarvester():
             if 'error' in fe.keys():
                 api_key_counter += 1
                 self.sharedcount.change_token(self.fb_api_keys[api_key_counter])
-                if api_key_counter > 3:
+                if api_key_counter > 4:
                     print("All limits reached !!! - Data loss")
                     break
-                print('Error - API limit reached \n    * API changed & Row processed once again')
+                print('API limit reached ==> API changed & Row processed once again')
                 fe = self.sharedcount.get_facebook_engagement(url)
             # https://stackoverflow.com/questions/14092989/facebook-api-4-application-request-limit-reached
-            time.sleep(1)
+            # time.sleep(1)
             fe_list.append(flatten(fe))
         df_fe = pd.DataFrame(fe_list)
         print("\n\n --------------")
@@ -131,9 +131,8 @@ class DataHarvester():
     
     @timing
     def drop_duplicates(self, df):
-        df = df.groupby('url', group_keys=False).apply(lambda x: x.loc[x.top_article.idxmax()])
-        return df
-    
+        return df.sort_values('top_article', ascending=False).drop_duplicates('url').sort_index()
+        
     def save_metadata(self, metadata_tuple, date):
         metadata_dict = {
             'fetch_time': metadata_tuple[0],
@@ -141,10 +140,28 @@ class DataHarvester():
             'top_count': metadata_tuple[2],
             'append_social_time': metadata_tuple[3],
             'drop_duplicates_time': metadata_tuple[4],
-            'all_count': metadata_tuple[5]
+            'all_count': metadata_tuple[5],
+            'sources_count': metadata_tuple[6]
         }
         with open('Data/metadata_{date:%Y-%m-%d_%H:%M:%S}.json'.format(date=date), 'w', encoding='utf-8') as f:
             json.dump(metadata_dict, f, ensure_ascii=False, indent=4)
+    
+    def shuffle_df(self, df):
+        return df.sample(frac=1)
+    
+    def count_sources(self, df):
+        return df['source_id'].value_counts().to_dict()
+    
+    def filter_today_articles(self, df):
+        today_list = []
+        for pe in df['published_at']:
+            if dateutil.parser.parse(pe).date() == datetime.datetime.today().date():
+                today_list.append(1)
+            else:
+                today_list.append(0)
+        df['today'] = today_list
+        df = df[df['today'] == 1]
+        return df.drop(columns=['today'])
     
     @timing
     def harvest_daily(self):
@@ -152,16 +169,23 @@ class DataHarvester():
         df, fetch_time = self.fetch_data_daily(datetime.date.today())
         print("Amount of fetched data: {}".format(df.count())+'\n\n --------------')
         print("Data enrichment with top articles ... \n\n --------------")
-        df_with_top_count, append_top_time = self.append_top_articles(df)
-        df = df_with_top_count[0]
-        top_count = df_with_top_count[1]
+        (df, top_count), append_top_time = self.append_top_articles(df)
         print("Data enrichment with facebook social shares ... (this process may take some time)")
         df, append_social_time = self.append_facebook_engagement(df)
+        # df.to_csv('Data/data_all.csv')
+        # df = pd.read_csv('Data/data_all.csv', index_col=0)
         print("Drop duplicates with max value of top_article column ... \n\n --------------")
         df, drop_duplicates_time = self.drop_duplicates(df)
+        # Count sources
+        sources_count = self.count_sources(df)
+        # Count whole df
+        df_count = df.count()
+        # Change column names
+        df = self.change_column_names(df)
+        # Shuffle df
+        df = self.shuffle_df(df)
+        df = self.filter_today_articles(df)
         print("Saving dataframe to Data/ directory ... \n\n --------------")
         date = datetime.datetime.now()
-        df = self.change_column_names(df)
-        df_count = df.count()
         df.to_csv("Data/data_all_{date:%Y-%m-%d_%H:%M:%S}.csv".format(date=date))
-        self.save_metadata((fetch_time, append_top_time, top_count, append_social_time, drop_duplicates_time, df_count), date)
+        self.save_metadata((fetch_time, append_top_time, top_count, append_social_time, drop_duplicates_time, df_count, json.dumps(sources_count)), date)
