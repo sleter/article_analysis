@@ -116,10 +116,10 @@ class DataHarvester():
             fe = self.sharedcount.get_facebook_engagement(url)
             if 'error' in fe.keys():
                 api_key_counter += 1
-                self.sharedcount.change_token(self.fb_api_keys[api_key_counter])
                 if api_key_counter > 4:
                     print("All limits reached !!! - Data loss")
                     break
+                self.sharedcount.change_token(self.fb_api_keys[api_key_counter])
                 print('API limit reached ==> API changed & Row processed once again')
                 fe = self.sharedcount.get_facebook_engagement(url)
             # https://stackoverflow.com/questions/14092989/facebook-api-4-application-request-limit-reached
@@ -150,7 +150,7 @@ class DataHarvester():
         return df.sample(frac=1)
     
     def count_sources(self, df):
-        return df['source_id'].value_counts().to_dict()
+        return df['source_id'].value_counts().to_json()
     
     def filter_today_articles(self, df):
         today_list = []
@@ -189,3 +189,9 @@ class DataHarvester():
         date = datetime.datetime.now()
         df.to_csv("Data/data_all_{date:%Y-%m-%d_%H:%M:%S}.csv".format(date=date))
         self.save_metadata((fetch_time, append_top_time, top_count, append_social_time, drop_duplicates_time, df_count, json.dumps(sources_count)), date)
+        
+    @timing
+    def harvest_top_daily(self):
+        date = datetime.datetime.now()
+        df = self.fetch_top_articles()
+        df.to_csv("Data/data_top_{date:%Y-%m-%d_%H:%M:%S}.csv".format(date=date))

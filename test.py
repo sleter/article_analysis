@@ -7,6 +7,7 @@ from utils.helpers import timing
 def main():
     dh = DataHarvester()    
     harvest_time = dh.harvest_daily()
+    # harvest_time = dh.harvest_top_daily()
     print("Process took: {}".format(harvest_time)+' seconds\n\n')
     input("Press Enter to continue...")
     
