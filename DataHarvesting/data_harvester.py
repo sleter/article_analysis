@@ -150,7 +150,8 @@ class DataHarvester():
         return df.sample(frac=1)
     
     def count_sources(self, df):
-        return df['source_id'].value_counts().to_json()
+        json = df['source_id'].value_counts().to_json()
+        return json
     
     def filter_today_articles(self, df):
         today_list = []
@@ -179,7 +180,7 @@ class DataHarvester():
         # Count sources
         sources_count = self.count_sources(df)
         # Count whole df
-        df_count = df.count()
+        df_count = df.count().to_json()
         # Change column names
         df = self.change_column_names(df)
         # Shuffle df
