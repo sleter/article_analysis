@@ -10,6 +10,7 @@ import json
 import time
 import progressbar
 import dateutil
+import os
 
 class DataHarvester():
     def __init__(self):
@@ -196,3 +197,17 @@ class DataHarvester():
         date = datetime.datetime.now()
         df = self.fetch_top_articles()
         df.to_csv("Data/data_top_{date:%Y-%m-%d_%H:%M:%S}.csv".format(date=date))
+    
+    @timing
+    def gather_all(self):
+        filenames = [filename for filename in os.listdir('Data/') if filename.startswith("data_all_")]
+        df = pd.DataFrame()
+        for filename in filenames:
+            df_temp = pd.read_csv('Data/'+filename, index_col=0)
+            df = df.append(df_temp, ignore_index=True)
+        start_date = filenames[0][9:-13]
+        end_date = filenames[-1][9:-13]
+        count = len(df.index)
+        df.to_csv("Data/GatheredData/data_gathered_{}-{}_{}".format(start_date,end_date,count))
+        
+

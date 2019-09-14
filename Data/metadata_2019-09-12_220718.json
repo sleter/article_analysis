@@ -1,0 +1,9 @@
+{
+    "fetch_time": 11.436321020126343,
+    "append_top_time": 7.845269441604614,
+    "top_count": 114,
+    "append_social_time": 161.69815039634705,
+    "drop_duplicates_time": 0.005455970764160156,
+    "all_count": "{\"source_id\":853,\"source_name\":853,\"author\":772,\"title\":853,\"description\":850,\"url\":853,\"urlToImage\":797,\"publishedAt\":853,\"content\":746,\"top_article\":853,\"engagement_reaction_count\":844,\"engagement_comment_count\":844,\"engagement_share_count\":844,\"engagement_comment_plugin_count\":844}",
+    "sources_count": "\"{\\\"reuters\\\":90,\\\"bbc-news\\\":90,\\\"the-irish-times\\\":89,\\\"cnn\\\":89,\\\"newsweek\\\":85,\\\"abc-news\\\":83,\\\"the-new-york-times\\\":82,\\\"business-insider\\\":82,\\\"cbs-news\\\":79,\\\"al-jazeera-english\\\":42,\\\"the-wall-street-journal\\\":35,\\\"espn\\\":7}\""
+}
