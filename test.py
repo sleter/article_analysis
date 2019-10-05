@@ -1,6 +1,7 @@
 from DataHarvesting.data_harvester import DataHarvester
 from DataHarvesting.sharedcount import SharedCountApiClient
 from Preprocessing.data_preprocessing import DataPreprocessing
+from MachineLearningModels.lstm import Tensorflow_LSTM
 from datetime import date
 import pandas as pd
 from utils.helpers import timing
@@ -19,14 +20,20 @@ def gather_all():
     input("Press Enter to continue...")
 
 def preprocessing():
-    dp = DataPreprocessing("GatheredData/data_gathered_2019-09-03-2019-09-12_5358")
-    tokens = dp.create_tokens_from_title()
-    dp.create_embeddings(tokens)
+    dp = DataPreprocessing("GatheredData/data_gathered_2019-09-03-2019-10-03_10437")
+    # dp.save_embeddings()
+    # dp.generate_wordcloud()
+    dp.tsne_dim_red()
+
+def ml_stuff():
+    tlstm = Tensorflow_LSTM()
+    tlstm.test_tensorflow()
 
 def main():
     preprocessing()
     # get_daily()
     # gather_all()
+    # ml_stuff()
     
     
 if __name__== "__main__":
