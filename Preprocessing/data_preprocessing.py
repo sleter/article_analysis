@@ -9,6 +9,9 @@ from gensim.models import KeyedVectors, Doc2Vec, doc2vec
 from utils.helpers import timing
 from sklearn.manifold import TSNE
 from wordcloud import WordCloud
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
 
 class DataPreprocessing():
     def __init__(self, filename):
@@ -135,5 +138,22 @@ class DataPreprocessing():
         plt.axis('off')
         plt.tight_layout()
         plt.savefig("Preprocessing/"+filename)
+        
+    def create_samples(self, embeddings_filename = 'titles_embeddings_2019-10-13_14:21:06'):
+        df = pd.read_csv('GoogleNewsModelData/EmbeddingsData/{}.csv'.format(embeddings_filename), index_col=0)
+        columns_to_drop = ["source_name", "title", "description", "url", "url_to_image", "published_at", "content"]
+        df = df.drop(columns_to_drop, axis=1)
+        # Change label column (top_article) to ints and drop rows without labels
+        df = df.dropna(subset=['top_article', 'author'])
+        df.top_article = df.top_article.astype(int)
+        # Fill nan values with mean
+        df = df.fillna(df.mean())
+        # Label categorical data
+        le = LabelEncoder()
+        df['source_id'] = le.fit_transform(df['source_id'])
+        df['author'] = le.fit_transform(df['author'])
+        
+        df.to_csv('Data/PreprocessedData/data_{}samples_{date:%Y-%m-%d_%H:%M:%S}.csv'.format(len(df.index),date=datetime.datetime.now()))
+        
         
         
