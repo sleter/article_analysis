@@ -21,17 +21,17 @@ def gather_all():
 
 def preprocessing():
     dp = DataPreprocessing("GatheredData/data_gathered_2019-09-03-2019-10-03_10437")
-    # dp.save_embeddings()
+    dp.save_embeddings(title=True, word=False)
     # dp.generate_wordcloud()
-    dp.tsne_dim_red()
+    # dp.tsne_dim_red()
 
 def ml_stuff():
     tlstm = Tensorflow_LSTM()
     tlstm.test_tensorflow()
 
 def main():
-    preprocessing()
-    # get_daily()
+    # preprocessing()
+    get_daily()
     # gather_all()
     # ml_stuff()
     

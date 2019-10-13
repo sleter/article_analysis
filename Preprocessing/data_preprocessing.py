@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
-from gensim.models import KeyedVectors
+from gensim.models import KeyedVectors, Doc2Vec, doc2vec
 from utils.helpers import timing
 from sklearn.manifold import TSNE
 from wordcloud import WordCloud
@@ -56,15 +56,51 @@ class DataPreprocessing():
         print("Found embeddings for {:.2%} of words".format(found_word_count/len(tokens)))
         return (df, found_word_count, not_found_word_count, time_tokens)
     
-    def save_embeddings(self):
-        (df, found_word_count, not_found_word_count, time_tokens), time_embeddings = self.create_embeddings()
-        df.to_csv('GoogleNewsModelData/EmbeddingsData/embeddings_{date:%Y-%m-%d_%H:%M:%S}.csv'.format(date=datetime.datetime.now()))
-        metadata_dict = {
-            'time_of_creating_tokens': time_tokens,
-            'time_of_creating_embeddings': time_embeddings,
-            'found_word_count': found_word_count,
-            'not_found_word_count': not_found_word_count,
-        }
+    @timing
+    def create_titles_embeddings(self):
+        df = self.df.copy(deep=True)
+        titles_df = df['title']
+        titles_list = [str(title) for title in titles_df]
+        tokens = [word_tokenize(title) for title in titles_list]
+        tokens = [[word.lower() for word in title if word.isalpha()] for title in tokens]
+        stopwords_list = set(stopwords.words('english'))
+        tokens = [[word for word in title if not word in stopwords_list] for title in tokens]
+        print("Created {} tokens.".format(len(tokens)))
+        def create_tagged_document(tokens):
+            for i, title in enumerate(tokens):
+                yield doc2vec.TaggedDocument(title, [i])
+        titles_train_data = list(create_tagged_document(tokens))
+        
+        model = Doc2Vec(vector_size=50, min_count=2, epochs=40)
+        model.build_vocab(titles_train_data)
+        model.train(titles_train_data, total_examples=model.corpus_count, epochs=model.epochs)
+        
+        titles_vectors = [model.infer_vector(title) for title in tokens]
+        for i in range(1,51):
+            hlist = [vector[i-1] for vector in titles_vectors]
+            df['title_embedding_{}'.format(i)] = np.asarray(hlist, dtype=np.float32)
+
+        print("Created {} tokens.".format(len(titles_vectors)))
+        return (df, len(tokens), len(titles_vectors))
+
+    def save_embeddings(self, title=True, word=True):
+        if title:
+            (df, title_tokens, titles_vectors), title_time_embeddings = self.create_titles_embeddings()
+            metadata_dict = {
+                'time_of_creating_title_embeddings': title_time_embeddings,
+                'number_of_title_tokens': title_tokens,
+                'number_of_titles_vectors': titles_vectors,
+            }
+            df.to_csv('GoogleNewsModelData/EmbeddingsData/titles_embeddings_{date:%Y-%m-%d_%H:%M:%S}.csv'.format(date=datetime.datetime.now()))
+        elif word:
+            (df, found_word_count, not_found_word_count, time_tokens), time_embeddings = self.create_embeddings()
+            metadata_dict = {
+                'time_of_creating_tokens': time_tokens,
+                'time_of_creating_embeddings': time_embeddings,
+                'found_word_count': found_word_count,
+                'not_found_word_count': not_found_word_count,
+            }
+            df.to_csv('GoogleNewsModelData/EmbeddingsData/embeddings_{date:%Y-%m-%d_%H:%M:%S}.csv'.format(date=datetime.datetime.now()))
         with open('GoogleNewsModelData/EmbeddingsData/metadata_{date:%Y-%m-%d_%H:%M:%S}.json'.format(date=datetime.datetime.now()), 'w', encoding='utf-8') as f:
             json.dump(metadata_dict, f, ensure_ascii=False, indent=4)
     
