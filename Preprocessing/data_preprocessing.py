@@ -59,40 +59,52 @@ class DataPreprocessing():
         print("Found embeddings for {:.2%} of words".format(found_word_count/len(tokens)))
         return (df, found_word_count, not_found_word_count, time_tokens)
     
-    @timing
-    def create_titles_embeddings(self):
-        df = self.df.copy(deep=True)
-        titles_df = df['title']
-        titles_list = [str(title) for title in titles_df]
-        tokens = [word_tokenize(title) for title in titles_list]
+
+    def transform_column(self, column_df, vector_size=50):
+        col_name = column_df.column[0]
+        column_list = [str(title) for title in column_df]
+        tokens = [word_tokenize(title) for title in column_list]
         tokens = [[word.lower() for word in title if word.isalpha()] for title in tokens]
         stopwords_list = set(stopwords.words('english'))
         tokens = [[word for word in title if not word in stopwords_list] for title in tokens]
-        print("Created {} tokens.".format(len(tokens)))
         def create_tagged_document(tokens):
             for i, title in enumerate(tokens):
                 yield doc2vec.TaggedDocument(title, [i])
         titles_train_data = list(create_tagged_document(tokens))
         
-        model = Doc2Vec(vector_size=50, min_count=2, epochs=40)
+        model = Doc2Vec(vector_size=vector_size, min_count=2, epochs=40)
         model.build_vocab(titles_train_data)
         model.train(titles_train_data, total_examples=model.corpus_count, epochs=model.epochs)
         
         titles_vectors = [model.infer_vector(title) for title in tokens]
-        for i in range(1,51):
+        for i in range(1,vector_size+1):
             hlist = [vector[i-1] for vector in titles_vectors]
-            df['title_embedding_{}'.format(i)] = np.asarray(hlist, dtype=np.float32)
+            df['{}_embedding_{}'.format(col_name, i)] = np.asarray(hlist, dtype=np.float32)
+        return df, tokens, titles_vectors
 
-        print("Created {} tokens.".format(len(titles_vectors)))
-        return (df, len(tokens), len(titles_vectors))
 
-    def save_embeddings(self, title=True, word=True):
-        if title:
-            (df, title_tokens, titles_vectors), title_time_embeddings = self.create_titles_embeddings()
+    @timing
+    def create_columns_embeddings(self):
+        df = self.df.copy(deep=True)
+
+        titles_df = df['title']
+        df, tokenst, titles_vectorst = self.transform_column(columns_df=titles_df)
+        content_df = df['content']
+        df, tokensc, titles_vectorsc = self.transform_column(columns_df=content_df)
+        
+        print("Created {} title tokens.".format(len(titles_vectorst)))
+        print("Created {} content tokens.".format(len(titles_vectorst)))
+        return (df, len(tokenst), len(titles_vectorst), len(tokensc), len(titles_vectorsc))
+
+    def save_embeddings(self, columns=True, word=True):
+        if columns:
+            (df, title_tokens, titles_vectors, content_tokens, content_vectors), title_time_embeddings = self.create_titles_embeddings()
             metadata_dict = {
                 'time_of_creating_title_embeddings': title_time_embeddings,
                 'number_of_title_tokens': title_tokens,
                 'number_of_titles_vectors': titles_vectors,
+                'number_of_content_tokens': content_tokens,
+                'number_of_content_vectors': content_vectors,
             }
             df.to_csv('GoogleNewsModelData/EmbeddingsData/titles_embeddings_{date:%Y-%m-%d_%H:%M:%S}.csv'.format(date=datetime.datetime.now()))
         elif word:
