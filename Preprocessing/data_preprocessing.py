@@ -60,8 +60,8 @@ class DataPreprocessing():
         return (df, found_word_count, not_found_word_count, time_tokens)
     
 
-    def transform_column(self, column_df, vector_size=50):
-        col_name = column_df.column[0]
+    def transform_column(self, df, column_df, vector_size=50):
+        col_name = column_df.name
         column_list = [str(title) for title in column_df]
         tokens = [word_tokenize(title) for title in column_list]
         tokens = [[word.lower() for word in title if word.isalpha()] for title in tokens]
@@ -88,17 +88,17 @@ class DataPreprocessing():
         df = self.df.copy(deep=True)
 
         titles_df = df['title']
-        df, tokenst, titles_vectorst = self.transform_column(columns_df=titles_df)
-        content_df = df['content']
-        df, tokensc, titles_vectorsc = self.transform_column(columns_df=content_df)
+        dft, tokenst, titles_vectorst = self.transform_column(df, column_df=titles_df, vector_size=10)
+        content_df = dft['content']
+        dfc, tokensc, titles_vectorsc = self.transform_column(dft, column_df=content_df)
         
         print("Created {} title tokens.".format(len(titles_vectorst)))
         print("Created {} content tokens.".format(len(titles_vectorst)))
-        return (df, len(tokenst), len(titles_vectorst), len(tokensc), len(titles_vectorsc))
+        return (dfc, len(tokenst), len(titles_vectorst), len(tokensc), len(titles_vectorsc))
 
-    def save_embeddings(self, columns=True, word=True):
+    def save_embeddings(self, columns=True, word=False):
         if columns:
-            (df, title_tokens, titles_vectors, content_tokens, content_vectors), title_time_embeddings = self.create_titles_embeddings()
+            (df, title_tokens, titles_vectors, content_tokens, content_vectors), title_time_embeddings = self.create_columns_embeddings()
             metadata_dict = {
                 'time_of_creating_title_embeddings': title_time_embeddings,
                 'number_of_title_tokens': title_tokens,
@@ -106,7 +106,7 @@ class DataPreprocessing():
                 'number_of_content_tokens': content_tokens,
                 'number_of_content_vectors': content_vectors,
             }
-            df.to_csv('GoogleNewsModelData/EmbeddingsData/titles_embeddings_{date:%Y-%m-%d_%H:%M:%S}.csv'.format(date=datetime.datetime.now()))
+            df.to_csv('GoogleNewsModelData/EmbeddingsData/categorical_embeddings_{date:%Y-%m-%d_%H:%M:%S}.csv'.format(date=datetime.datetime.now()))
         elif word:
             (df, found_word_count, not_found_word_count, time_tokens), time_embeddings = self.create_embeddings()
             metadata_dict = {
@@ -164,7 +164,6 @@ class DataPreprocessing():
         le = LabelEncoder()
         df['source_id'] = le.fit_transform(df['source_id'])
         df['author'] = le.fit_transform(df['author'])
-        
         df.to_csv('Data/PreprocessedData/data_{}samples_{date:%Y-%m-%d_%H:%M:%S}.csv'.format(len(df.index),date=datetime.datetime.now()))
         
         
