@@ -8,12 +8,6 @@ class Tensorflow_LSTM(AbstractNN):
         self.embed_size = embed_size
         self.max_word_len = max_word_len
     
-    def test_tensorflow(self):
-        print("Tensorflow version: {}".format(tf.__version__))
-        print("\nGPU available: {}".format(tf.test.is_gpu_available()))
-        print("\nDevice name: {}\n".format(tf.random.uniform([3, 3]).device))
-        # print("Benchmark config: {}\n".format(tf.test.benchmark_config()))
-    
     def read_dataset(self, filename):
         super().read_dataset(filename)
         

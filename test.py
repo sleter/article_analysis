@@ -30,7 +30,8 @@ def preprocessing():
 
 def ml_stuff():
     nn = Simple_NN()
-    nn.create_model()
+    # nn.create_model()
+    nn.test_tensorflow()
 
 def analyze_data():
     da = DataAnalyzer()
