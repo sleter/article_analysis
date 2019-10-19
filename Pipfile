@@ -20,7 +20,6 @@ sklearn = "*"
 wordcloud = "*"
 matplotlib = "==3.1.1"
 seaborn = "*"
-tensorflow-gpu = {file = "https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-2.0.0-cp37-cp37m-linux_x86_64.whl"}
 
 [requires]
 python_version = "3.7"

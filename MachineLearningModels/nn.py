@@ -1,6 +1,6 @@
 import pandas as pd
 import tensorflow as tf
-import tensorflow as tf
+import datetime
 from .nn_abc import AbstractNN
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
@@ -16,19 +16,14 @@ class Simple_NN(AbstractNN):
         return pd.read_csv("Data/PreprocessedData/{}.csv".format(filename), index_col=0)
     
     def create_model(self):
-        df = self.read_dataset("data_9415samples_2019-10-15_15:06:32")
-        X, Y, X_width = self.split_dataset(df)
-        def a():
-            model = Sequential()
-            model.add(Dense(X_width, input_dim=X_width, activation='relu'))
-            model.add(Dense(1, activation='sigmoid'))
-            model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-            return model
+        df = self.read_dataset("test_linux")
+        X_train, X_test, y_train, y_test, X_width = self.split_dataset(df)
         
-        estimator = KerasClassifier(build_fn=a, epochs=100, batch_size=5, verbose=0)
-        kfold = StratifiedKFold(n_splits=10, shuffle=True)
-        results = cross_val_score(estimator, X, Y, cv=kfold)
-        print("Baseline: %.2f%% (%.2f%%)" % (results.mean()*100, results.std()*100))
-
-
-        
+        model = Sequential()
+        model.add(Dense(X_width, input_dim=X_width, activation=tf.nn.relu))
+        model.add(Dense(1, activation=tf.nn.sigmoid))
+        model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+        model.fit(X_train, y_train, epochs=100, batch_size=100)
+        loss, accuracy = model.evaluate(X_test, y_test)
+        print("loss: {} | accuracy: {}".format(loss, accuracy))
+        model.save('MachineLearningModels/SavedModels/snn_model_{date:%Y-%m-%d_%H:%M:%S}.h5'.format(date=datetime.datetime.now()))
