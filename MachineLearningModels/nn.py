@@ -26,4 +26,4 @@ class Simple_NN(AbstractNN):
         model.fit(X_train, y_train, epochs=100, batch_size=100)
         loss, accuracy = model.evaluate(X_test, y_test)
         print("loss: {} | accuracy: {}".format(loss, accuracy))
-        model.save('MachineLearningModels/SavedModels/snn_model_{date:%Y-%m-%d_%H:%M:%S}.h5'.format(date=datetime.datetime.now()))
+        model.save('MachineLearningModels/SavedModels/snn_model_{date:%Y-%m-%d}.h5'.format(date=datetime.datetime.now()))
