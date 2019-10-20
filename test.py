@@ -1,7 +1,7 @@
 # from DataHarvesting.data_harvester import DataHarvester
 # from DataHarvesting.sharedcount import SharedCountApiClient
 # from Preprocessing.data_preprocessing import DataPreprocessing
-# from MachineLearningModels.lstm import Tensorflow_LSTM
+from MachineLearningModels.lstm import Tensorflow_LSTM
 from MachineLearningModels.nn import Simple_NN
 # from DataAnalysis.data_analyzer import DataAnalyzer
 # from datetime import date
@@ -29,8 +29,9 @@ from MachineLearningModels.nn import Simple_NN
 #     dp.create_samples(embeddings_filename="categorical_embeddings_2019-10-15_15:03:14")
 
 def ml_stuff():
-    nn = Simple_NN()
-    nn.create_model()
+    nn = Simple_NN("v01")
+    # nn.create_model()
+    nn.optimize_model()
     # nn.test_tensorflow()
 
 # def analyze_data():
