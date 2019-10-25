@@ -30,9 +30,9 @@ from MachineLearningModels.nn import Simple_NN
 
 def ml_stuff():
     nn = Simple_NN("v02")
-    # nn.fit_model()
-    nnt = Tensorflow_LSTM("v01")
-    nnt.fit_model()
+    nn.fit_model()
+    # nnt = Tensorflow_LSTM("v01")
+    # nnt.fit_model()
 
 # def analyze_data():
 #     da = DataAnalyzer()
