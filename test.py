@@ -29,10 +29,10 @@ from MachineLearningModels.nn import Simple_NN
 #     dp.create_samples(embeddings_filename="categorical_embeddings_2019-10-15_15:03:14")
 
 def ml_stuff():
-    nn = Simple_NN("v01")
-    # nn.create_model()
-    nn.optimize_model()
-    # nn.test_tensorflow()
+    nn = Simple_NN("v02")
+    nn.fit_model()
+    # nnt = Tensorflow_LSTM("v01")
+    # nnt.fit_model()
 
 # def analyze_data():
 #     da = DataAnalyzer()

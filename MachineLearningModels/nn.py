@@ -22,7 +22,7 @@ class Simple_NN(AbstractNN):
         model.add(Dense(60, input_dim=input_dim, kernel_initializer=init, activation=tf.nn.relu))
         model.add(Dense(1, kernel_initializer=init, activation=tf.nn.sigmoid))
 
-        model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])
+        model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy', tf.keras.metrics.AUC()])
 
         return model
 
@@ -34,7 +34,7 @@ class Simple_NN(AbstractNN):
 
         optimizer = ['adam', 'sgd', 'rmsprop']
         init = ['glorot_uniform', 'uniform'] 
-        batch_sizes = [64, 128, 512]
+        batch_sizes = [20, 50, 100, 300]
         epochs = [10, 20, 50, 100]
 
         param_grid = dict(epochs=epochs, batch_size=batch_sizes, init=init, optimizer=optimizer)
@@ -55,10 +55,24 @@ class Simple_NN(AbstractNN):
             json.dump(results, f, ensure_ascii=False, indent=4)
 
         print(f'Best params: {gscv_result.best_params_}')
+        return gscv_result.best_params_, X_train, X_test, y_train, y_test, X_width
 
-        # model.fit(X_train, y_train, epochs=100, batch_size=100)
-        # loss, accuracy = model.evaluate(X_test, y_test)
-        # print("loss: {} | accuracy: {}".format(loss, accuracy))
-        # self.save_model(model)
-        # self.save_metadata(loss = loss, accuracy = accuracy)
+    def fit_model(self):
+        best_params, X_train, X_test, y_train, y_test, X_width = self.optimize_model()
+        
+        epochs = best_params['epochs']
+        batch_size = best_params['batch_size']
+        init = best_params['init']
+        optimizer = best_params['optimizer']
+
+        model = self.create_model(
+            X_width,
+            optimizer=optimizer,
+            init=init)
+
+        model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size)
+        loss, accuracy, auc = model.evaluate(X_test, y_test)
+        print("loss: {} | accuracy: {} | auc: {}".format(loss, accuracy, auc))
+        self.save_model(model)
+        self.save_metadata(loss = loss, accuracy = accuracy, auc=auc)
         
