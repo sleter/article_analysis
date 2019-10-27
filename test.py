@@ -1,12 +1,12 @@
 # from DataHarvesting.data_harvester import DataHarvester
 # from DataHarvesting.sharedcount import SharedCountApiClient
-# from Preprocessing.data_preprocessing import DataPreprocessing
+from Preprocessing.data_preprocessing import DataPreprocessing
 from MachineLearningModels.lstm import Tensorflow_LSTM
-from MachineLearningModels.nn import Simple_NN
-# from DataAnalysis.data_analyzer import DataAnalyzer
-# from datetime import date
-# import pandas as pd
-# from utils.helpers import timing
+from MachineLearningModels.nn import Simple_NN, Complex_NN
+from DataAnalysis.data_analyzer import DataAnalyzer
+from datetime import date
+import pandas as pd
+from utils.helpers import timing
 
 # def get_daily():
 #     dh = DataHarvester()    
@@ -29,10 +29,14 @@ from MachineLearningModels.nn import Simple_NN
 #     dp.create_samples(embeddings_filename="categorical_embeddings_2019-10-15_15:03:14")
 
 def ml_stuff():
-    nn = Simple_NN("v02")
-    nn.fit_model()
+    # nn = Simple_NN("v02")
+    # nn.fit_model()
     # nnt = Tensorflow_LSTM("v01")
-    # nnt.fit_model()
+    # nnt.fit_model(save=True)
+    cnn = Complex_NN("v01")
+    cnn.fit_optimize_eval_model()
+    # dp = DataPreprocessing()
+    # dp.create_samples(filename="data_gathered_2019-09-03-2019-10-03_10437", embeddings=False)
 
 # def analyze_data():
 #     da = DataAnalyzer()

@@ -1,0 +1,542 @@
+{
+    "Best accuracy=0.8947158904307964": {
+        "batch_size": 50,
+        "epochs": 50,
+        "init": "uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.8667020578999755|Stdev=0.007461094733539003": {
+        "batch_size": 20,
+        "epochs": 10,
+        "init": "glorot_uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.8737387251201869|Stdev=0.0045325865564531465": {
+        "batch_size": 50,
+        "epochs": 50,
+        "init": "glorot_uniform",
+        "optimizer": "sgd"
+    },
+    "Accuracy=0.8744025445497232|Stdev=0.00536531970544771": {
+        "batch_size": 20,
+        "epochs": 10,
+        "init": "glorot_uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.8766595686425317|Stdev=0.003956708921613953": {
+        "batch_size": 20,
+        "epochs": 10,
+        "init": "uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.8761285335316155|Stdev=0.004704700262077393": {
+        "batch_size": 20,
+        "epochs": 10,
+        "init": "uniform",
+        "optimizer": "sgd"
+    },
+    "Accuracy=0.8755974446878874|Stdev=0.003681910460550808": {
+        "batch_size": 20,
+        "epochs": 10,
+        "init": "uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.873871475576848|Stdev=0.005769434638948236": {
+        "batch_size": 20,
+        "epochs": 20,
+        "init": "glorot_uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.8757302152923745|Stdev=0.004358792053554143": {
+        "batch_size": 20,
+        "epochs": 20,
+        "init": "glorot_uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.8856877531862234|Stdev=0.0016684829324787804": {
+        "batch_size": 20,
+        "epochs": 20,
+        "init": "uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.8765268181937841|Stdev=0.004246817721849986": {
+        "batch_size": 20,
+        "epochs": 20,
+        "init": "uniform",
+        "optimizer": "sgd"
+    },
+    "Accuracy=0.8740042528920015|Stdev=0.004861035639652753": {
+        "batch_size": 20,
+        "epochs": 20,
+        "init": "uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.8835634649812827|Stdev=0.0015130859064630263": {
+        "batch_size": 20,
+        "epochs": 50,
+        "init": "glorot_uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.8814391927458286|Stdev=0.006016497791696202": {
+        "batch_size": 20,
+        "epochs": 50,
+        "init": "glorot_uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.8917950091372129|Stdev=0.004537429335471048": {
+        "batch_size": 20,
+        "epochs": 50,
+        "init": "uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.8758629856119748|Stdev=0.0038635761020425568": {
+        "batch_size": 20,
+        "epochs": 50,
+        "init": "uniform",
+        "optimizer": "sgd"
+    },
+    "Accuracy=0.8860860400958323|Stdev=0.008103466285649091": {
+        "batch_size": 20,
+        "epochs": 50,
+        "init": "uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.8898034792312333|Stdev=0.005236960111128774": {
+        "batch_size": 20,
+        "epochs": 100,
+        "init": "glorot_uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.8801115152845975|Stdev=0.006619434145631605": {
+        "batch_size": 20,
+        "epochs": 100,
+        "init": "glorot_uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.890998410706943|Stdev=0.0033991094003281903": {
+        "batch_size": 20,
+        "epochs": 100,
+        "init": "uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.8757302010163815|Stdev=0.0042275353036364096": {
+        "batch_size": 20,
+        "epochs": 100,
+        "init": "uniform",
+        "optimizer": "sgd"
+    },
+    "Accuracy=0.8834306960702892|Stdev=0.0039128379030813724": {
+        "batch_size": 20,
+        "epochs": 100,
+        "init": "uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.8663037592467006|Stdev=0.0074876023628870775": {
+        "batch_size": 50,
+        "epochs": 10,
+        "init": "glorot_uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.8635156681435702|Stdev=0.017503647511108944": {
+        "batch_size": 50,
+        "epochs": 10,
+        "init": "glorot_uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.8755974645587401|Stdev=0.003918433018693496": {
+        "batch_size": 50,
+        "epochs": 10,
+        "init": "uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.875995756216462|Stdev=0.0043136140330004525": {
+        "batch_size": 50,
+        "epochs": 10,
+        "init": "uniform",
+        "optimizer": "sgd"
+    },
+    "Accuracy=0.8761285130989026|Stdev=0.0029631098478375244": {
+        "batch_size": 50,
+        "epochs": 10,
+        "init": "uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.8535581338424602|Stdev=0.01687718078567409": {
+        "batch_size": 50,
+        "epochs": 20,
+        "init": "glorot_uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.870817855578183|Stdev=0.006285101982179499": {
+        "batch_size": 50,
+        "epochs": 20,
+        "init": "glorot_uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.8783855371996246|Stdev=0.005539471081228394": {
+        "batch_size": 50,
+        "epochs": 20,
+        "init": "uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.875995743064189|Stdev=0.004225455905968184": {
+        "batch_size": 50,
+        "epochs": 20,
+        "init": "uniform",
+        "optimizer": "sgd"
+    },
+    "Accuracy=0.8770578804480795|Stdev=0.005561232749950274": {
+        "batch_size": 50,
+        "epochs": 20,
+        "init": "uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.8773234216491402|Stdev=0.006328643446755533": {
+        "batch_size": 50,
+        "epochs": 50,
+        "init": "glorot_uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.8822357802396117|Stdev=0.007101143877078702": {
+        "batch_size": 50,
+        "epochs": 50,
+        "init": "glorot_uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.8947158904307964|Stdev=0.0026471564625031294": {
+        "batch_size": 50,
+        "epochs": 50,
+        "init": "uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.8771906443339867|Stdev=0.005041856307429122": {
+        "batch_size": 50,
+        "epochs": 50,
+        "init": "uniform",
+        "optimizer": "sgd"
+    },
+    "Accuracy=0.8855549576857973|Stdev=0.008373137144367509": {
+        "batch_size": 50,
+        "epochs": 50,
+        "init": "uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.8886086154477874|Stdev=0.0067228002216164155": {
+        "batch_size": 50,
+        "epochs": 100,
+        "init": "glorot_uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.8744025506985296|Stdev=0.003747731964576727": {
+        "batch_size": 50,
+        "epochs": 100,
+        "init": "glorot_uniform",
+        "optimizer": "sgd"
+    },
+    "Accuracy=0.8913967107688248|Stdev=0.0071244805574513315": {
+        "batch_size": 50,
+        "epochs": 100,
+        "init": "glorot_uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.8909984056818567|Stdev=0.0024423176371284926": {
+        "batch_size": 50,
+        "epochs": 100,
+        "init": "uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.8779872469505097|Stdev=0.004017497803328318": {
+        "batch_size": 50,
+        "epochs": 100,
+        "init": "uniform",
+        "optimizer": "sgd"
+    },
+    "Accuracy=0.8644450450206271|Stdev=0.03323451492636447": {
+        "batch_size": 50,
+        "epochs": 100,
+        "init": "uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.856611794453318|Stdev=0.007029780300243781": {
+        "batch_size": 100,
+        "epochs": 10,
+        "init": "glorot_uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.8741370164930219|Stdev=0.0039212482276650435": {
+        "batch_size": 100,
+        "epochs": 10,
+        "init": "glorot_uniform",
+        "optimizer": "sgd"
+    },
+    "Accuracy=0.8686935852736282|Stdev=0.003596416571381335": {
+        "batch_size": 100,
+        "epochs": 10,
+        "init": "glorot_uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.8755974514064673|Stdev=0.0042284074157764905": {
+        "batch_size": 100,
+        "epochs": 10,
+        "init": "uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.8762612904219695|Stdev=0.00395664541446118": {
+        "batch_size": 100,
+        "epochs": 10,
+        "init": "uniform",
+        "optimizer": "sgd"
+    },
+    "Accuracy=0.873871475576848|Stdev=0.004809841528997076": {
+        "batch_size": 100,
+        "epochs": 10,
+        "init": "uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.8665692934522082|Stdev=0.004493282779064814": {
+        "batch_size": 100,
+        "epochs": 20,
+        "init": "glorot_uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.8746680849040371|Stdev=0.0035756712477214682": {
+        "batch_size": 100,
+        "epochs": 20,
+        "init": "glorot_uniform",
+        "optimizer": "sgd"
+    },
+    "Accuracy=0.8590015796543877|Stdev=0.01595358819030712": {
+        "batch_size": 100,
+        "epochs": 20,
+        "init": "glorot_uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.8749336389803976|Stdev=0.0048414245944830145": {
+        "batch_size": 100,
+        "epochs": 20,
+        "init": "uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.875995762650155|Stdev=0.0036819502248014386": {
+        "batch_size": 100,
+        "epochs": 20,
+        "init": "uniform",
+        "optimizer": "sgd"
+    },
+    "Accuracy=0.8745353017170506|Stdev=0.00521245934093537": {
+        "batch_size": 100,
+        "epochs": 20,
+        "init": "uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.8761285019170966|Stdev=0.008432820626519044": {
+        "batch_size": 100,
+        "epochs": 50,
+        "init": "glorot_uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.8742697736603493|Stdev=0.0038992802898163183": {
+        "batch_size": 300,
+        "epochs": 20,
+        "init": "glorot_uniform",
+        "optimizer": "sgd"
+    },
+    "Accuracy=0.8774561838494674|Stdev=0.005708296902268878": {
+        "batch_size": 100,
+        "epochs": 50,
+        "init": "glorot_uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.890600089128196|Stdev=0.007197333650589817": {
+        "batch_size": 100,
+        "epochs": 50,
+        "init": "uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.8766595887903578|Stdev=0.004537413448613863": {
+        "batch_size": 100,
+        "epochs": 50,
+        "init": "uniform",
+        "optimizer": "sgd"
+    },
+    "Accuracy=0.8927243812345028|Stdev=0.002758974683909217": {
+        "batch_size": 100,
+        "epochs": 50,
+        "init": "uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.88289963940294|Stdev=0.0021354222454596666": {
+        "batch_size": 100,
+        "epochs": 100,
+        "init": "glorot_uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.8734731774854331|Stdev=0.004212000415650382": {
+        "batch_size": 100,
+        "epochs": 100,
+        "init": "glorot_uniform",
+        "optimizer": "sgd"
+    },
+    "Accuracy=0.7389803526332513|Stdev=0.20416257834680343": {
+        "batch_size": 100,
+        "epochs": 100,
+        "init": "glorot_uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.8920605559331334|Stdev=0.004496015853477159": {
+        "batch_size": 100,
+        "epochs": 100,
+        "init": "uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.8750663897140318|Stdev=0.003775386832903932": {
+        "batch_size": 100,
+        "epochs": 100,
+        "init": "uniform",
+        "optimizer": "sgd"
+    },
+    "Accuracy=0.8929899008791307|Stdev=0.00530942129630744": {
+        "batch_size": 100,
+        "epochs": 100,
+        "init": "uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.8599309797418035|Stdev=0.019734340363192913": {
+        "batch_size": 300,
+        "epochs": 10,
+        "init": "glorot_uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.875066396147725|Stdev=0.004177500747758365": {
+        "batch_size": 300,
+        "epochs": 10,
+        "init": "glorot_uniform",
+        "optimizer": "sgd"
+    },
+    "Accuracy=0.6313064293268191|Stdev=0.2934880162043904": {
+        "batch_size": 300,
+        "epochs": 10,
+        "init": "glorot_uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.8744025439878632|Stdev=0.005026656754253737": {
+        "batch_size": 300,
+        "epochs": 10,
+        "init": "uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.873473197071399|Stdev=0.0038632348065984244": {
+        "batch_size": 300,
+        "epochs": 10,
+        "init": "uniform",
+        "optimizer": "sgd"
+    },
+    "Accuracy=0.8733403998853929|Stdev=0.0028743449770876634": {
+        "batch_size": 300,
+        "epochs": 10,
+        "init": "uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.8526287754988708|Stdev=0.021251474112047437": {
+        "batch_size": 300,
+        "epochs": 20,
+        "init": "glorot_uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.8360329141214181|Stdev=0.04377649177741976": {
+        "batch_size": 300,
+        "epochs": 20,
+        "init": "glorot_uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.8755974312586412|Stdev=0.003058110739662914": {
+        "batch_size": 300,
+        "epochs": 20,
+        "init": "uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.8749336191095447|Stdev=0.004134560114660281": {
+        "batch_size": 300,
+        "epochs": 20,
+        "init": "uniform",
+        "optimizer": "sgd"
+    },
+    "Accuracy=0.8754646942391399|Stdev=0.003956539570931593": {
+        "batch_size": 300,
+        "epochs": 20,
+        "init": "uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.8593998841794956|Stdev=0.022844609769925167": {
+        "batch_size": 300,
+        "epochs": 50,
+        "init": "glorot_uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.8738714890060941|Stdev=0.004695927772787225": {
+        "batch_size": 300,
+        "epochs": 50,
+        "init": "glorot_uniform",
+        "optimizer": "sgd"
+    },
+    "Accuracy=0.8717472080815933|Stdev=0.005216956161374401": {
+        "batch_size": 300,
+        "epochs": 50,
+        "init": "glorot_uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.8832979058798361|Stdev=0.008438016081248135": {
+        "batch_size": 300,
+        "epochs": 50,
+        "init": "uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.8758629993261078|Stdev=0.005043700921073672": {
+        "batch_size": 300,
+        "epochs": 50,
+        "init": "uniform",
+        "optimizer": "sgd"
+    },
+    "Accuracy=0.8830323842647414|Stdev=0.0033216924413491423": {
+        "batch_size": 300,
+        "epochs": 50,
+        "init": "uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.8663037852347055|Stdev=0.01674955116820621": {
+        "batch_size": 300,
+        "epochs": 100,
+        "init": "glorot_uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.8746681047748899|Stdev=0.004722561470581697": {
+        "batch_size": 300,
+        "epochs": 100,
+        "init": "glorot_uniform",
+        "optimizer": "sgd"
+    },
+    "Accuracy=0.8712161642895438|Stdev=0.003779408396050386": {
+        "batch_size": 300,
+        "epochs": 100,
+        "init": "glorot_uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.8916622452513057|Stdev=0.008722263960424692": {
+        "batch_size": 300,
+        "epochs": 100,
+        "init": "uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.8763940411556039|Stdev=0.0038865661388179967": {
+        "batch_size": 300,
+        "epochs": 100,
+        "init": "uniform",
+        "optimizer": "sgd"
+    },
+    "Accuracy=0.8882102910518266|Stdev=0.002111670979756216": {
+        "batch_size": 300,
+        "epochs": 100,
+        "init": "uniform",
+        "optimizer": "rmsprop"
+    }
+}
