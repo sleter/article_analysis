@@ -16,7 +16,7 @@ class Tensorflow_LSTM(AbstractNN):
         self.max_length = 7
         super().__init__(str(__class__), version)
         
-    def read_dataset(self, filename="data_8502_lstm_samples_2019-10-27_14:30:28"):
+    def read_dataset(self, filename="data_8502_lstm_samples_2019-10-27"):
         super().read_dataset(filename)
         df = pd.read_csv("Data/PreprocessedData/{}.csv".format(filename), index_col=0)
         return df
@@ -38,7 +38,7 @@ class Tensorflow_LSTM(AbstractNN):
         return model
 
     def optimize_model(self):
-        df = self.read_dataset("data_8502_lstm_samples_2019-10-27_14:30:28")
+        df = self.read_dataset("data_8502_lstm_samples_2019-10-27")
         X_train, X_test, X_train_meta, X_test_meta, y_train, y_test, X_width = self.split_dataset(df, astype=int, lstm=True, vocab_size=self.vocab_size, max_length=self.max_length)
 
         model = KerasClassifier(build_fn=self.create_model, meta_length=X_width, seq_length=self.max_length, vocab_size=self.vocab_size, verbose=1)
@@ -92,7 +92,7 @@ class Tensorflow_LSTM(AbstractNN):
 
 
     def fit_model(self, save=False):
-        df = self.read_dataset("data_8502_lstm_samples_2019-10-27_14:30:28")
+        df = self.read_dataset("data_8502_lstm_samples_2019-10-27")
         X_train, X_test, X_train_meta, X_test_meta, y_train, y_test, X_width = self.split_dataset(df, astype=int, lstm=True, vocab_size=self.vocab_size, max_length=self.max_length)
 
         model = self.create_model(
