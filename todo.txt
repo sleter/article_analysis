@@ -1,0 +1,19 @@
+1. Wykresy per wydawca (np. liczba likeów itd)
+2. Największe zaangażowanie ludzi dla wydawcy
+3. 10 najbardziej likowanych/topowych artykułów i ich autorów
+4. heatmapa - groupować po autorach, publishers
+5. zbiór danych w czasie (bo są kolejne dni) - np topowe słowa się zmieniają w czasie np w pewnym czasie dorian
+6. 
+
+czy nie zwrócić uwagę na publish_date w uczeniu / chronologie (że w test secie późniejsze artykuły)
+
+cecha skalowanie liczba likóœ w czasie (np czas od publish date do zebrania)
+
+LSTM dla samych tytułów
+
+np nowa kolumna w minutach czas od opublikowania do zebrania
+
+ewaluacja bez wartości engagement
+
+odzielny scenariusz symuluje pracę wydawnictwatest końcowy - artykuły z ostatniego dnia bez engagement i sprawdzić trafność predykcji, posortować i wybrać najlepsze (czyli regresja)
+proba - w modelu (predict_proba) - top 15 wybrać 
