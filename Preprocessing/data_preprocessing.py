@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from gensim.models import KeyedVectors, Doc2Vec, doc2vec
-from utils.helpers import timing
+from utils.helpers import timing, custom_len
 from sklearn.manifold import TSNE
 from wordcloud import WordCloud
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
@@ -14,7 +14,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 
 class DataPreprocessing():
-    def __init__(self, filename):
+    def __init__(self, filename="GatheredData/data_gathered_2019-09-03-2019-10-03_10437"):
         self.df = pd.read_csv('Data/'+filename, index_col=0)
     
     @timing
@@ -60,27 +60,32 @@ class DataPreprocessing():
         return (df, found_word_count, not_found_word_count, time_tokens)
     
 
-    def transform_column(self, df, column_df, vector_size=50):
+    def transform_column(self, df, column_df, vector_size=50, embedding=True):
         col_name = column_df.name
         column_list = [str(title) for title in column_df]
         tokens = [word_tokenize(title) for title in column_list]
         tokens = [[word.lower() for word in title if word.isalpha()] for title in tokens]
         stopwords_list = set(stopwords.words('english'))
         tokens = [[word for word in title if not word in stopwords_list] for title in tokens]
-        def create_tagged_document(tokens):
-            for i, title in enumerate(tokens):
-                yield doc2vec.TaggedDocument(title, [i])
-        titles_train_data = list(create_tagged_document(tokens))
-        
-        model = Doc2Vec(vector_size=vector_size, min_count=2, epochs=40)
-        model.build_vocab(titles_train_data)
-        model.train(titles_train_data, total_examples=model.corpus_count, epochs=model.epochs)
-        
-        titles_vectors = [model.infer_vector(title) for title in tokens]
-        for i in range(1,vector_size+1):
-            hlist = [vector[i-1] for vector in titles_vectors]
-            df['{}_embedding_{}'.format(col_name, i)] = np.asarray(hlist, dtype=np.float32)
-        return df, tokens, titles_vectors
+        if embedding:
+            def create_tagged_document(tokens):
+                for i, title in enumerate(tokens):
+                    yield doc2vec.TaggedDocument(title, [i])
+            titles_train_data = list(create_tagged_document(tokens))
+            
+            model = Doc2Vec(vector_size=vector_size, min_count=2, epochs=40)
+            model.build_vocab(titles_train_data)
+            model.train(titles_train_data, total_examples=model.corpus_count, epochs=model.epochs)
+            
+            titles_vectors = [model.infer_vector(title) for title in tokens]
+            for i in range(1,vector_size+1):
+                hlist = [vector[i-1] for vector in titles_vectors]
+                df['{}_embedding_{}'.format(col_name, i)] = np.asarray(hlist, dtype=np.float32)
+            return df, tokens, titles_vectors
+        else:
+            tokens = [' '.join(title) for title in tokens]
+            df['title'] = pd.Series(tokens)
+            return df, custom_len(tokens)
 
 
     @timing
@@ -88,13 +93,13 @@ class DataPreprocessing():
         df = self.df.copy(deep=True)
 
         titles_df = df['title']
-        dft, tokenst, titles_vectorst = self.transform_column(df, column_df=titles_df, vector_size=10)
+        dft, tokenst, titles_vectors = self.transform_column(df, column_df=titles_df, vector_size=10)
         content_df = dft['content']
-        dfc, tokensc, titles_vectorsc = self.transform_column(dft, column_df=content_df)
+        dfc, tokensc, content_vectors = self.transform_column(dft, column_df=content_df)
         
-        print("Created {} title tokens.".format(len(titles_vectorst)))
-        print("Created {} content tokens.".format(len(titles_vectorst)))
-        return (dfc, len(tokenst), len(titles_vectorst), len(tokensc), len(titles_vectorsc))
+        print("Created {} title tokens.".format(len(titles_vectors)))
+        print("Created {} content tokens.".format(len(content_vectors)))
+        return (dfc, len(tokenst), len(titles_vectors), len(tokensc), len(content_vectors))
 
     def save_embeddings(self, columns=True, word=False):
         if columns:
@@ -151,20 +156,44 @@ class DataPreprocessing():
         plt.tight_layout()
         plt.savefig("Preprocessing/"+filename)
         
-    def create_samples(self, embeddings_filename = 'titles_embeddings_2019-10-13_14:21:06'):
-        df = pd.read_csv('GoogleNewsModelData/EmbeddingsData/{}.csv'.format(embeddings_filename), index_col=0)
-        columns_to_drop = ["source_name", "title", "description", "url", "url_to_image", "published_at", "content"]
-        df = df.drop(columns_to_drop, axis=1)
-        # Change label column (top_article) to ints and drop rows without labels
-        df = df.dropna(subset=['top_article', 'author'])
-        df.top_article = df.top_article.astype(int)
-        # Fill nan values with mean
-        df = df.fillna(df.mean())
-        # Label categorical data
-        le = LabelEncoder()
-        df['source_id'] = le.fit_transform(df['source_id'])
-        df['author'] = le.fit_transform(df['author'])
-        df.to_csv('Data/PreprocessedData/data_{}samples_{date:%Y-%m-%d_%H:%M:%S}.csv'.format(len(df.index),date=datetime.datetime.now()))
-        
+    def create_samples(self, filename = 'titles_embeddings_2019-10-13_14:21:06', embeddings = True):
+        if embeddings:
+            df = pd.read_csv('GoogleNewsModelData/EmbeddingsData/{}.csv'.format(filename), index_col=0)
+            columns_to_drop = ["source_name", "title", "description", "url", "url_to_image", "published_at", "content"]
+            df = df.drop(columns_to_drop, axis=1)
+            # Change label column (top_article) to ints and drop rows without labels
+            df = df.dropna(subset=['top_article', 'author'])
+            df.top_article = df.top_article.astype(int)
+            # Fill nan values with mean
+            df = df.fillna(df.mean())
+            # Label categorical data
+            le = LabelEncoder()
+            df['source_id'] = le.fit_transform(df['source_id'])
+            df['author'] = le.fit_transform(df['author'])
+            df.to_csv('Data/PreprocessedData/data_{}samples_{date:%Y-%m-%d_%H:%M:%S}.csv'.format(len(df.index),date=datetime.datetime.now()))
+        else:
+            df = pd.read_csv("Data/GatheredData/{}".format(filename), index_col=0)
+            columns_to_drop = ["source_name", "description", "url", "url_to_image", "published_at", "content"]
+            df = df.drop(columns_to_drop, axis=1)
+            # Drop rows without labels
+            df = df.dropna(subset=['top_article', 'author'])
+            # Fill nan values with mean
+            df = df.fillna(df.mean())
+            # Change label column (top_article) and other float columns to ints
+            df.top_article = df.top_article.astype(int)
+            df.engagement_reaction_count = df.engagement_reaction_count.astype(int)
+            df.engagement_comment_count = df.engagement_comment_count.astype(int)
+            df.engagement_share_count = df.engagement_share_count.astype(int)
+            df.engagement_comment_plugin_count = df.engagement_comment_plugin_count.astype(int)
+            # Label categorical data
+            le = LabelEncoder()
+            df['source_id'] = le.fit_transform(df['source_id'])
+            df['author'] = le.fit_transform(df['author'])
+            # Prepare title column
+            df, tokens = self.transform_column(df, column_df=df['title'], embedding=False)
+            # Drop titles again if any NaNs were created
+            df = df.dropna(subset=['title'])
+            # print("Number of tokens: {}".format(tokens))
+            df.to_csv('Data/PreprocessedData/data_{}_lstm_samples_{date:%Y-%m-%d_%H:%M:%S}.csv'.format(len(df.index),date=datetime.datetime.now()))
         
         

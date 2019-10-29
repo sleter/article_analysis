@@ -26,3 +26,9 @@ def timing(f):
         te = time()
         return result, te-ts
     return wrapper
+
+def custom_len(list_):
+    if type(list_) == list:
+        return sum(custom_len(sublist) for sublist in list_)
+    else:
+        return 1
