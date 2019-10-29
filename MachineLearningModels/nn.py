@@ -32,8 +32,12 @@ class Simple_NN(AbstractNN):
 
         model = KerasClassifier(build_fn=self.create_model, input_dim=X_width, verbose=1)
 
+        #fisrt trial
+        # init = ['glorot_uniform', 'uniform'] 
+        #second trial
+        init = ['lecun_uniform', 'normal', 'zero', 'glorot_normal', 'he_normal', 'he_uniform']        
+
         optimizer = ['adam', 'sgd', 'rmsprop']
-        init = ['glorot_uniform', 'uniform'] 
         batch_sizes = [20, 50, 100, 300]
         epochs = [10, 20, 50, 100]
 

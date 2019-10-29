@@ -31,10 +31,10 @@ from utils.helpers import timing
 def ml_stuff():
     # nn = Simple_NN("v02")
     # nn.fit_model()
-    # nnt = Tensorflow_LSTM("v01")
-    # nnt.fit_model(save=True)
-    cnn = Complex_NN("v01")
-    cnn.fit_optimize_eval_model()
+    nnt = Tensorflow_LSTM("v01")
+    nnt.fit_optimize_eval_model(save=False)
+    # cnn = Complex_NN("v01")
+    # cnn.fit_optimize_eval_model()
     # dp = DataPreprocessing()
     # dp.create_samples(filename="data_gathered_2019-09-03-2019-10-03_10437", embeddings=False)
 
