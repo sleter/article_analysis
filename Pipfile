@@ -20,6 +20,10 @@ sklearn = "*"
 wordcloud = "*"
 matplotlib = "==3.1.1"
 seaborn = "*"
+plotly = "*"
+jupyterlab = "*"
+notebook = ">=5.3"
+ipywidgets = ">=7.2"
 
 [requires]
 python_version = "3.7"
