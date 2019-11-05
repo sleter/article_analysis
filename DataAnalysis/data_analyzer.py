@@ -1,11 +1,15 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import datetime
+import dateutil.parser
 
 class DataAnalyzer():
-    def __init__(self, samples_filename="data_9415samples_2019-10-15_15:06:32.csv"):
-        self.samples_df = pd.read_csv('Data/PreprocessedData/'+samples_filename, index_col=0)
-
+    def __init__(self, filename_path="PreprocessedData/data_9415samples_2019-10-15_15:06:32.csv"):
+        self.samples_df = pd.read_csv(filename_path, index_col=0)
+        self.save_path = "DataAnalysis/"
+        self.pub_df = self.samples_df[self.samples_df.source_name != '460.0']
+        self.publishers = list(self.pub_df['source_name'].unique())
     
     def top_articles_percentage(self):
         ta_list = self.samples_df["top_article"].value_counts().tolist()
@@ -25,5 +29,40 @@ class DataAnalyzer():
             plt.show()
         elif save:
             fig = plot.get_figure()
-            fig.savefig("corr_matrix.png")
+            fig.savefig(self.save_path+"corr_matrix.png")
+    
+    def engagement_per_publisher(self):
+        epp = []
+        df = self.samples_df[self.samples_df.source_name != 'ESPN']
+        df = df[df.source_name != '460.0']
+        publishers = list(df['source_name'].unique())
+        engagement_columns = ['engagement_reaction_count', 'engagement_comment_count', 'engagement_share_count']
+        for ec in engagement_columns:
+            df_eng = df.groupby(['source_name'])[ec].agg('sum')
+            epp.append((ec, df_eng.tolist()))
+        return publishers, epp
+
+    def articles_per_publisher(self):
+        df = self.pub_df
+        publishers = self.publishers
+        def parse_date(date_string):
+            do = dateutil.parser.parse(date_string)
+            return do.date().isoformat()
+        df["published_at_day"] = df['published_at'].apply(lambda x : parse_date(x))
+        df_date_pub = df.sort_values(['source_name', 'published_at_day'])
+        dates_list = df_date_pub['published_at_day'].unique().tolist()
+        df_date_pub = df.groupby(['published_at_day', 'source_name'])['source_name'].agg('count')
+        list_date_pub = df_date_pub.tolist()
+        p_len = len(publishers)
+        ldp_chunks = [list_date_pub[x:x+p_len] for x in range(0, len(list_date_pub), p_len)]
+        return publishers, ldp_chunks, dates_list
+
+    def top_n_liked_articles(self, n, main_field='engagement_reaction_count', grouping_fields=['title', 'source_name']):
+        grouping_fields.append(main_field)
+        df_liked = self.samples_df.sort_values([main_field], ascending=False)
+        titles_df = df_liked[grouping_fields].head(n)
+        titles_df.rename(columns={main_field: main_field+'_sum'}, inplace=True)
+        return titles_df
+
+
     

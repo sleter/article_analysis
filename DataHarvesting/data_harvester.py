@@ -204,10 +204,11 @@ class DataHarvester():
         df = pd.DataFrame()
         for filename in filenames:
             df_temp = pd.read_csv('Data/'+filename, index_col=0)
+            date_harvested = [filename[9:-4] for _ in range(len(df_temp.index))]
+            df_temp['harvested_at_date'] = pd.Series(date_harvested, index=df_temp.index)
             df = df.append(df_temp, ignore_index=True)
         start_date = filenames[0][9:-13]
         end_date = filenames[-1][9:-13]
         count = len(df.index)
         df.to_csv("Data/GatheredData/data_gathered_{}-{}_{}".format(start_date,end_date,count))
-        
 
