@@ -1,6 +1,8 @@
 import pandas as pd
 import datetime
+import dateutil
 import json
+import pytz
 import numpy as np
 import matplotlib.pyplot as plt
 from nltk.tokenize import word_tokenize
@@ -97,9 +99,25 @@ class DataPreprocessing():
         content_df = dft['content']
         dfc, tokensc, content_vectors = self.transform_column(dft, column_df=content_df)
         
+        dfc = self.add_time_difference_column(dfc)
+        
         print("Created {} title tokens.".format(len(titles_vectors)))
         print("Created {} content tokens.".format(len(content_vectors)))
         return (dfc, len(tokenst), len(titles_vectors), len(tokensc), len(content_vectors))
+
+    def add_time_difference_column(self, df):
+        def merge(columns_data):
+            try:
+                published_at = dateutil.parser.parse(columns_data[0])
+                harvested_at = datetime.datetime.strptime(columns_data[1], "%Y-%m-%d_%H:%M:%S")
+                warsaw = pytz.timezone('Europe/Warsaw')
+                harvested_at = harvested_at.astimezone(warsaw)
+                time_diff = harvested_at - published_at
+            except TypeError:
+                return np.nan
+            return time_diff.total_seconds() / 60
+        df['publish_harvest_time_period'] = df[['published_at', 'harvested_at_date']].apply(lambda x: merge(x), axis=1)
+        return df
 
     def save_embeddings(self, columns=True, word=False):
         if columns:
@@ -156,27 +174,30 @@ class DataPreprocessing():
         plt.tight_layout()
         plt.savefig("Preprocessing/"+filename)
         
-    def create_samples(self, filename = 'titles_embeddings_2019-10-13_14:21:06', embeddings = True):
+    def create_samples(self, filename, embeddings = True):
         if embeddings:
             df = pd.read_csv('GoogleNewsModelData/EmbeddingsData/{}.csv'.format(filename), index_col=0)
-            columns_to_drop = ["source_name", "title", "description", "url", "url_to_image", "published_at", "content"]
+            columns_to_drop = ["source_name", "title", "description", "url", "url_to_image", "published_at", "content", "harvested_at_date"]
             df = df.drop(columns_to_drop, axis=1)
             # Change label column (top_article) to ints and drop rows without labels
-            df = df.dropna(subset=['top_article', 'author'])
+            df = df.dropna(subset=["source_id", 'top_article', 'author'])
             df.top_article = df.top_article.astype(int)
             # Fill nan values with mean
             df = df.fillna(df.mean())
             # Label categorical data
             le = LabelEncoder()
-            df['source_id'] = le.fit_transform(df['source_id'])
-            df['author'] = le.fit_transform(df['author'])
+            df['source_id'] = le.fit_transform(df['source_id'].astype(str))
+            df['author'] = le.fit_transform(df['author'].astype(str))
             df.to_csv('Data/PreprocessedData/data_{}samples_{date:%Y-%m-%d_%H:%M:%S}.csv'.format(len(df.index),date=datetime.datetime.now()))
         else:
             df = pd.read_csv("Data/GatheredData/{}".format(filename), index_col=0)
-            columns_to_drop = ["source_name", "description", "url", "url_to_image", "published_at", "content"]
+            # Create column with minutes between publish and harvest time
+            df = self.add_time_difference_column(df)
+            # Drop not used columns
+            columns_to_drop = ["source_name", "description", "url", "url_to_image", "published_at", "content", "harvested_at_date"]
             df = df.drop(columns_to_drop, axis=1)
             # Drop rows without labels
-            df = df.dropna(subset=['top_article', 'author'])
+            df = df.dropna(subset=["source_id", 'top_article', 'author'])
             # Fill nan values with mean
             df = df.fillna(df.mean())
             # Change label column (top_article) and other float columns to ints
@@ -187,8 +208,8 @@ class DataPreprocessing():
             df.engagement_comment_plugin_count = df.engagement_comment_plugin_count.astype(int)
             # Label categorical data
             le = LabelEncoder()
-            df['source_id'] = le.fit_transform(df['source_id'])
-            df['author'] = le.fit_transform(df['author'])
+            df['source_id'] = le.fit_transform(df['source_id'].astype(str))
+            df['author'] = le.fit_transform(df['author'].astype(str))
             # Prepare title column
             df, tokens = self.transform_column(df, column_df=df['title'], embedding=False)
             # Drop titles again if any NaNs were created
