@@ -1,6 +1,7 @@
 import tensorflow as tf
 import pandas as pd
 import json, datetime
+from utils.helpers import timing
 from .nn_abc import AbstractNN
 from tensorflow.keras.models import Sequential
 from tensorflow.keras import Model
@@ -11,10 +12,10 @@ from sklearn.model_selection import cross_val_score, StratifiedKFold, GridSearch
 
 
 class Tensorflow_LSTM(AbstractNN):
-    def __init__(self, version, embed_size=300, max_word_len=50):
+    def __init__(self, version, filename, embed_size=300, max_word_len=50):
         self.vocab_size = 70227
         self.max_length = 7
-        super().__init__(str(__class__), version)
+        super().__init__(str(__class__), version, filename)
         
     def read_dataset(self, filename="data_8502_lstm_samples_2019-10-27"):
         super().read_dataset(filename)
@@ -38,15 +39,15 @@ class Tensorflow_LSTM(AbstractNN):
         return model
 
     def optimize_model(self):
-        df = self.read_dataset("data_8502_lstm_samples_2019-10-27")
+        df = self.read_dataset(self.filename)
         X_train, X_test, X_train_meta, X_test_meta, y_train, y_test, X_width = self.split_dataset(df, astype=int, lstm=True, vocab_size=self.vocab_size, max_length=self.max_length)
 
         model = KerasClassifier(build_fn=self.create_model, meta_length=X_width, seq_length=self.max_length, vocab_size=self.vocab_size, verbose=1)
 
-        optimizer = ['adam']#, 'rmsprop']
-        init = ['glorot_uniform']#, 'uniform'] 
-        batch_sizes = [10]#, 20, 30]
-        epochs = [10]#, 20, 40]
+        optimizer = ['adam', 'rmsprop']
+        init = ['glorot_uniform', 'uniform'] 
+        batch_sizes = [10, 20, 30]
+        epochs = [10, 20, 40]
 
         param_grid = dict(epochs=epochs, batch_size=batch_sizes, init=init, optimizer=optimizer)
         gscv = GridSearchCV(estimator=model, param_grid=param_grid, cv=3)
@@ -80,7 +81,9 @@ class Tensorflow_LSTM(AbstractNN):
         model = self.create_model(
             meta_length=X_width,
             seq_length=self.max_length,
-            vocab_size=self.vocab_size
+            vocab_size=self.vocab_size,
+            optimizer=optimizer,
+            init=init
         )
 
         model.fit([X_train, X_train_meta], y_train, epochs=epochs, batch_size=batch_size)
@@ -90,18 +93,20 @@ class Tensorflow_LSTM(AbstractNN):
             self.save_model(model)
             self.save_metadata(loss = loss, accuracy = accuracy, auc=auc)
 
-
-    def fit_model(self, save=False):
-        df = self.read_dataset("data_8502_lstm_samples_2019-10-27")
+    @timing
+    def fit_model(self, save=False, epochs = 20, batch_size = 20, optimizer = 'adam',init = 'glorot_uniform'):
+        df = self.read_dataset(self.filename)
         X_train, X_test, X_train_meta, X_test_meta, y_train, y_test, X_width = self.split_dataset(df, astype=int, lstm=True, vocab_size=self.vocab_size, max_length=self.max_length)
 
         model = self.create_model(
             meta_length=X_width,
             seq_length=self.max_length,
-            vocab_size=self.vocab_size
+            vocab_size=self.vocab_size,
+            optimizer=optimizer,
+            init=init
         )
 
-        model.fit([X_train, X_train_meta], y_train, epochs=20, batch_size=20)
+        model.fit([X_train, X_train_meta], y_train, epochs=epochs, batch_size=batch_size)
 
         loss, accuracy, auc = model.evaluate([X_test, X_test_meta], y_test)
         print("loss: {} | accuracy: {} | auc: {}".format(loss, accuracy, auc))

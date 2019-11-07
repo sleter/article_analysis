@@ -9,12 +9,13 @@ import numpy, datetime, re, json
 
 class AbstractNN(ABC):
     @abstractmethod
-    def __init__(self, submodule_name, version):
+    def __init__(self, submodule_name, version, filename):
         # print(__class__)
         print("Initializing ML submodule: {} \n -----------------------------".format(submodule_name))
         numpy.random.seed(42) # answer to the ultimate question of life, universe and everything
         self.name = submodule_name[33:-2].lower()
         self.version = version
+        self.filename = filename
         
     @abstractmethod
     def read_dataset(self, filename):

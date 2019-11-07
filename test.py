@@ -1,25 +1,12 @@
-from DataHarvesting.data_harvester import DataHarvester
-from DataHarvesting.sharedcount import SharedCountApiClient
-from Preprocessing.data_preprocessing import DataPreprocessing
+# from DataHarvesting.data_harvester import DataHarvester
+# from DataHarvesting.sharedcount import SharedCountApiClient
+# from Preprocessing.data_preprocessing import DataPreprocessing
 # from MachineLearningModels.lstm import Tensorflow_LSTM
-# from MachineLearningModels.nn import Simple_NN, Complex_NN
+from MachineLearningModels.nn import Simple_NN, Complex_NN
 # from DataAnalysis.data_analyzer import DataAnalyzer
 from datetime import date
 import pandas as pd
 from utils.helpers import timing
-
-def get_daily():
-    dh = DataHarvester()    
-    harvest_time = dh.harvest_daily()
-    # harvest_time = dh.harvest_top_daily()
-    print("Process took: {}".format(harvest_time)+' seconds\n\n')
-    input("Press Enter to continue...")
-
-# def gather_all():
-#     dh = DataHarvester()
-#     gathering_time = dh.gather_all()   
-#     print("Process took: {}".format(gathering_time)+' seconds\n\n')
-#     input("Press Enter to continue...")
 
 # def preprocessing():
 #     dp = DataPreprocessing("GatheredData/data_gathered_2019-09-03-2019-11-04_23535")
@@ -28,18 +15,6 @@ def get_daily():
 #     # dp.tsne_dim_red()
 #     dp.create_samples(filename="categorical_embeddings_2019-11-05_16:06:37", embeddings=True)
 #     # dp.create_samples(filename="data_gathered_2019-09-03-2019-11-04_23535", embeddings=False)
-    
-    
-
-# def ml_stuff():
-    # nn = Simple_NN("v02")
-    # nn.fit_model()
-    # nnt = Tensorflow_LSTM("v01")
-    # nnt.fit_optimize_eval_model(save=False)
-    # cnn = Complex_NN("v01")
-    # cnn.fit_optimize_eval_model()
-    # dp = DataPreprocessing()
-    # dp.create_samples(filename="data_gathered_2019-09-03-2019-10-03_10437", embeddings=False)
 
 # def analyze_data():
 #     da = DataAnalyzer()
@@ -48,10 +23,8 @@ def get_daily():
 
 def main():
     # preprocessing()
-    get_daily()
-    # gather_all()
-    # ml_stuff()
     # analyze_data()
+    pass
     
     
 if __name__== "__main__":
