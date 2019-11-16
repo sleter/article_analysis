@@ -8,7 +8,7 @@ from tensorflow.keras import Model
 from tensorflow.keras.layers import Input, Dense, LSTM, Dropout, Embedding, Bidirectional, concatenate
 from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 from Preprocessing.data_preprocessing import DataPreprocessing
-from sklearn.model_selection import cross_val_score, StratifiedKFold, GridSearchCV
+from sklearn.model_selection import cross_val_score, StratifiedKFold, GridSearchCV, ParameterGrid
 
 
 class Tensorflow_LSTM(AbstractNN):
@@ -34,7 +34,7 @@ class Tensorflow_LSTM(AbstractNN):
         
         model = Model(inputs=[nlp_input, meta_input], outputs=[join_nlp_meta_output])
 
-        model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy', tf.keras.metrics.AUC()])
+        model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy', tf.keras.metrics.AUC(), tf.keras.metrics.Precision(), tf.keras.metrics.Recall()])
 
         return model
 
@@ -46,52 +46,43 @@ class Tensorflow_LSTM(AbstractNN):
 
         optimizer = ['adam', 'rmsprop']
         init = ['glorot_uniform', 'uniform'] 
-        batch_sizes = [10, 20, 30]
-        epochs = [10, 20, 40]
+        batch_sizes = [2, 5, 10, 15]
+        epochs = [5, 10, 25]
 
         param_grid = dict(epochs=epochs, batch_size=batch_sizes, init=init, optimizer=optimizer)
-        gscv = GridSearchCV(estimator=model, param_grid=param_grid, cv=3)
-        # GridSearchCV cannot accept multiple inputs !!!
-        gscv_result = gscv.fit([X_train, X_train_meta], y_train)
 
-        results = {
-            'Best accuracy='+str(gscv_result.best_score_): gscv_result.best_params_
-        }
-        accs = gscv_result.cv_results_['mean_test_score']
-        stds = gscv_result.cv_results_['std_test_score']
-        params = gscv_result.cv_results_['params']
+        pg = ParameterGrid(param_grid)
 
-        for acc, stdev, param in zip(accs, stds, params):
-            results['Accuracy='+str(acc)+'|Stdev='+str(stdev)] = param
+        results = {}
+
+        for configuration in pg:
+            epochs = configuration['epochs']
+            batch_size = configuration['batch_size']
+            init = configuration['init']
+            optimizer = configuration['optimizer']
+
+            model = self.create_model(
+                meta_length=X_width,
+                seq_length=self.max_length,
+                vocab_size=self.vocab_size,
+                optimizer=optimizer,
+                init=init
+            )
+
+            model.fit([X_train, X_train_meta], y_train, epochs=epochs, batch_size=batch_size)
+
+            loss, accuracy, auc, precision, recall = model.evaluate([X_test, X_test_meta], y_test)
+
+            results[str(configuration)] = str({
+                'loss' : loss,
+                'accuracy' : accuracy,
+                'auc' : auc,
+                'precision' : precision,
+                'recall' : recall
+            })
 
         with open('MachineLearningModels/OptimizationResults/{model_name}_{date:%Y-%m-%d}_{version}.json'.format(model_name = self.name, date = datetime.datetime.now(), version = self.version), 'w', encoding='utf-8') as f:
             json.dump(results, f, ensure_ascii=False, indent=4)
-
-        print(f'Best params: {gscv_result.best_params_}')
-        return gscv_result.best_params_, X_train, X_test, X_train_meta, X_test_meta, y_train, y_test, X_width
-
-    def fit_optimize_eval_model(self, save=True):
-        best_params, X_train, X_test, X_train_meta, X_test_meta, y_train, y_test, X_width = self.optimize_model()
-        
-        epochs = best_params['epochs']
-        batch_size = best_params['batch_size']
-        init = best_params['init']
-        optimizer = best_params['optimizer']
-
-        model = self.create_model(
-            meta_length=X_width,
-            seq_length=self.max_length,
-            vocab_size=self.vocab_size,
-            optimizer=optimizer,
-            init=init
-        )
-
-        model.fit([X_train, X_train_meta], y_train, epochs=epochs, batch_size=batch_size)
-        loss, accuracy, auc = model.evaluate([X_test, X_test_meta], y_test)
-        print("loss: {} | accuracy: {} | auc: {}".format(loss, accuracy, auc))
-        if save:
-            self.save_model(model)
-            self.save_metadata(loss = loss, accuracy = accuracy, auc=auc)
 
     @timing
     def fit_model(self, save=False, epochs = 20, batch_size = 20, optimizer = 'adam',init = 'glorot_uniform'):
@@ -108,8 +99,9 @@ class Tensorflow_LSTM(AbstractNN):
 
         model.fit([X_train, X_train_meta], y_train, epochs=epochs, batch_size=batch_size)
 
-        loss, accuracy, auc = model.evaluate([X_test, X_test_meta], y_test)
-        print("loss: {} | accuracy: {} | auc: {}".format(loss, accuracy, auc))
+        loss, accuracy, auc, precision, recall = model.evaluate([X_test, X_test_meta], y_test)
+        print("\nINFO")
+        print("loss: {} | accuracy: {} | auc: {} | precision: {} | recall: {}".format(loss, accuracy, auc, precision, recall))  
 
         if save:
             self.save_model(model)

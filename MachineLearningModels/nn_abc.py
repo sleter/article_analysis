@@ -38,10 +38,10 @@ class AbstractNN(ABC):
             dataset_Y = df[Y_name].values
             X_train, X_test, y_train, y_test = train_test_split(dataset_X, dataset_Y, test_size=0.2, random_state=42)
 
-            X_train_meta = np.delete(X_train, 2, 1)
-            X_test_meta = np.delete(X_test, 2, 1)
-            X_train_nlp = X_train[:, [2]]
-            X_test_nlp = X_test[:, [2]]          
+            X_train_meta = np.delete(X_train, 1, 1)
+            X_test_meta = np.delete(X_test, 1, 1)
+            X_train_nlp = X_train[:, [1]]
+            X_test_nlp = X_test[:, [1]]          
 
             encoded_titles_X_train = []
             encoded_titles_X_test = []
@@ -57,6 +57,7 @@ class AbstractNN(ABC):
             dataset_X = df.loc[:, df.columns != Y_name].values
             dataset_Y = df[Y_name].values
             X = dataset_X.astype(astype)
+
             X_train, X_test, y_train, y_test = train_test_split(X, dataset_Y, test_size=0.2, random_state=42)
             return X_train, X_test, y_train, y_test, dataset_X.shape[1]
     

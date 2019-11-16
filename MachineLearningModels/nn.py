@@ -8,6 +8,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 from sklearn.model_selection import cross_val_score, StratifiedKFold, GridSearchCV
+from sklearn.metrics import roc_curve, roc_auc_score
 
 
 class Simple_NN(AbstractNN):
@@ -23,7 +24,7 @@ class Simple_NN(AbstractNN):
         model.add(Dense(60, input_dim=input_dim, kernel_initializer=init, activation=tf.nn.relu))
         model.add(Dense(1, kernel_initializer=init, activation=tf.nn.sigmoid))
 
-        model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy', tf.keras.metrics.AUC()])
+        model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy', tf.keras.metrics.AUC(), tf.keras.metrics.Precision(), tf.keras.metrics.Recall()])
 
         return model
 
@@ -78,8 +79,9 @@ class Simple_NN(AbstractNN):
             init=init)
 
         model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size)
-        loss, accuracy, auc = model.evaluate(X_test, y_test)
-        print("loss: {} | accuracy: {} | auc: {}".format(loss, accuracy, auc))
+        loss, accuracy, auc, precision, recall = model.evaluate(X_test, y_test)
+        print("\nINFO")
+        print("loss: {} | accuracy: {} | auc: {} | precision: {} | recall: {}".format(loss, accuracy, auc, precision, recall))
         if save:
             self.save_model(model)
             self.save_metadata(loss = loss, accuracy = accuracy, auc=auc)
@@ -94,8 +96,10 @@ class Simple_NN(AbstractNN):
             optimizer=optimizer,
             init=init)
         model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size)
-        loss, accuracy, auc = model.evaluate(X_test, y_test)
-        print("loss: {} | accuracy: {} | auc: {}".format(loss, accuracy, auc))
+
+        loss, accuracy, auc, precision, recall = model.evaluate(X_test, y_test)
+        print("\nINFO")
+        print("loss: {} | accuracy: {} | auc: {} | precision: {} | recall: {}".format(loss, accuracy, auc, precision, recall))
         if save:
             self.save_model(model)
             self.save_metadata(loss = loss, accuracy = accuracy, auc=auc)
@@ -111,5 +115,5 @@ class Complex_NN(Simple_NN):
         model.add(Dense(120, input_dim=input_dim, kernel_initializer=init, activation=tf.nn.relu))
         model.add(Dense(30, input_dim=input_dim, kernel_initializer=init, activation=tf.nn.relu))
         model.add(Dense(1, kernel_initializer=init, activation=tf.nn.sigmoid))
-        model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy', tf.keras.metrics.AUC()])
+        model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy', tf.keras.metrics.AUC(), tf.keras.metrics.Precision(), tf.keras.metrics.Recall()])
         return model

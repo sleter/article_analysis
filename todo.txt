@@ -17,3 +17,5 @@ ewaluacja bez wartości engagement
 
 odzielny scenariusz symuluje pracę wydawnictwatest końcowy - artykuły z ostatniego dnia bez engagement i sprawdzić trafność predykcji, posortować i wybrać najlepsze (czyli regresja)
 proba - w modelu (predict_proba) - top 15 wybrać 
+
+DODAĆ FEATURE SCALING

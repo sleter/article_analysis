@@ -14,6 +14,7 @@ from wordcloud import WordCloud
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 
 class DataPreprocessing():
     def __init__(self, filename="GatheredData/data_gathered_2019-09-03-2019-10-03_10437"):
@@ -129,7 +130,8 @@ class DataPreprocessing():
                 'number_of_content_tokens': content_tokens,
                 'number_of_content_vectors': content_vectors,
             }
-            df.to_csv('GoogleNewsModelData/EmbeddingsData/categorical_embeddings_{date:%Y-%m-%d_%H:%M:%S}.csv'.format(date=datetime.datetime.now()))
+            filename = 'categorical_embeddings_{date:%Y-%m-%d_%H:%M:%S}.csv'.format(date=datetime.datetime.now())
+            df.to_csv('GoogleNewsModelData/EmbeddingsData/'+filename)
         elif word:
             (df, found_word_count, not_found_word_count, time_tokens), time_embeddings = self.create_embeddings()
             metadata_dict = {
@@ -138,9 +140,11 @@ class DataPreprocessing():
                 'found_word_count': found_word_count,
                 'not_found_word_count': not_found_word_count,
             }
-            df.to_csv('GoogleNewsModelData/EmbeddingsData/embeddings_{date:%Y-%m-%d_%H:%M:%S}.csv'.format(date=datetime.datetime.now()))
+            filename = 'embeddings_{date:%Y-%m-%d_%H:%M:%S}.csv'.format(date=datetime.datetime.now())
+            df.to_csv('GoogleNewsModelData/EmbeddingsData/'+filename)
         with open('GoogleNewsModelData/EmbeddingsData/metadata_{date:%Y-%m-%d_%H:%M:%S}.json'.format(date=datetime.datetime.now()), 'w', encoding='utf-8') as f:
             json.dump(metadata_dict, f, ensure_ascii=False, indent=4)
+        return filename
     
     @timing     
     def tsne_dim_red(self):
@@ -174,9 +178,21 @@ class DataPreprocessing():
         plt.tight_layout()
         plt.savefig("Preprocessing/"+filename)
         
-    def create_samples(self, filename, embeddings = True):
+    def create_samples(self, filename, embeddings = True, return_df=False):
+        le = LabelEncoder()
+        ohe = OneHotEncoder()
+        sc = StandardScaler()
+
+        scale_columns = ['source_id_abc-news', 'source_id_al-jazeera-english',
+                'source_id_bbc-news', 'source_id_bloomberg',
+                'source_id_business-insider', 'source_id_cbs-news', 'source_id_cnn',
+                'source_id_espn', 'source_id_newsweek', 'source_id_reuters',
+                'source_id_rte', 'source_id_the-irish-times',
+                'source_id_the-jerusalem-post', 'source_id_the-new-york-times',
+                'source_id_the-wall-street-journal', 'author']
+
         if embeddings:
-            df = pd.read_csv('GoogleNewsModelData/EmbeddingsData/{}.csv'.format(filename), index_col=0)
+            df = pd.read_csv('GoogleNewsModelData/EmbeddingsData/{}'.format(filename), index_col=0)
             columns_to_drop = ["source_name", "title", "description", "url", "url_to_image", "published_at", "content", "harvested_at_date"]
             df = df.drop(columns_to_drop, axis=1)
             # Change label column (top_article) to ints and drop rows without labels
@@ -185,12 +201,17 @@ class DataPreprocessing():
             # Fill nan values with mean
             df = df.fillna(df.mean())
             # Label categorical data
-            le = LabelEncoder()
-            df['source_id'] = le.fit_transform(df['source_id'].astype(str))
+            df = pd.get_dummies(df, columns=['source_id'])
             df['author'] = le.fit_transform(df['author'].astype(str))
+            # Add column
+            df['engagement_in_time'] = df['engagement_reaction_count']/df['publish_harvest_time_period']
+            # Scale columns
+            df[scale_columns] = sc.fit_transform(df[scale_columns])
+            df[['engagement_in_time','engagement_reaction_count','engagement_comment_count','engagement_share_count','engagement_comment_plugin_count','publish_harvest_time_period']] = sc.fit_transform(df[['engagement_in_time','engagement_reaction_count','engagement_comment_count','engagement_share_count','engagement_comment_plugin_count','publish_harvest_time_period']])
+            
             df.to_csv('Data/PreprocessedData/data_{}samples_{date:%Y-%m-%d_%H:%M:%S}.csv'.format(len(df.index),date=datetime.datetime.now()))
         else:
-            df = pd.read_csv("Data/GatheredData/{}".format(filename), index_col=0)
+            df = pd.read_csv("{}".format(filename), index_col=0)
             # Create column with minutes between publish and harvest time
             df = self.add_time_difference_column(df)
             # Drop not used columns
@@ -207,14 +228,19 @@ class DataPreprocessing():
             df.engagement_share_count = df.engagement_share_count.astype(int)
             df.engagement_comment_plugin_count = df.engagement_comment_plugin_count.astype(int)
             # Label categorical data
-            le = LabelEncoder()
-            df['source_id'] = le.fit_transform(df['source_id'].astype(str))
+            df = pd.get_dummies(df, columns=['source_id'])
             df['author'] = le.fit_transform(df['author'].astype(str))
             # Prepare title column
             df, tokens = self.transform_column(df, column_df=df['title'], embedding=False)
             # Drop titles again if any NaNs were created
             df = df.dropna(subset=['title'])
             # print("Number of tokens: {}".format(tokens))
+            # Add columns
+            df['engagement_in_time'] = df['engagement_reaction_count']/df['publish_harvest_time_period']
+            # Scale columns
+            df[scale_columns] = sc.fit_transform(df[scale_columns])
+            df[['engagement_in_time','engagement_reaction_count','engagement_comment_count','engagement_share_count','engagement_comment_plugin_count','publish_harvest_time_period']] = sc.fit_transform(df[['engagement_in_time','engagement_reaction_count','engagement_comment_count','engagement_share_count','engagement_comment_plugin_count','publish_harvest_time_period']])
             df.to_csv('Data/PreprocessedData/data_{}_lstm_samples_{date:%Y-%m-%d_%H:%M:%S}.csv'.format(len(df.index),date=datetime.datetime.now()))
-        
+        if return_df:
+            return df
         
