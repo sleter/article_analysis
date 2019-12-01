@@ -80,7 +80,7 @@ class Simple_NN(AbstractNN):
 
         model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size)
         loss, accuracy, auc, precision, recall = model.evaluate(X_test, y_test)
-        print("\nINFO")
+        print("\n\nEvaluation on test set\n")
         print("loss: {} | accuracy: {} | auc: {} | precision: {} | recall: {}".format(loss, accuracy, auc, precision, recall))
         if save:
             self.save_model(model)
@@ -98,7 +98,7 @@ class Simple_NN(AbstractNN):
         model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size)
 
         loss, accuracy, auc, precision, recall = model.evaluate(X_test, y_test)
-        print("\nINFO")
+        print("\n\nEvaluation on test set\n")
         print("loss: {} | accuracy: {} | auc: {} | precision: {} | recall: {}".format(loss, accuracy, auc, precision, recall))
         if save:
             self.save_model(model)
