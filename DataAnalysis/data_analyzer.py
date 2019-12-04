@@ -1,7 +1,9 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
 import datetime
+import os, json
 import dateutil.parser
 
 class DataAnalyzer():
@@ -63,6 +65,30 @@ class DataAnalyzer():
         titles_df = df_liked[grouping_fields].head(n)
         titles_df.rename(columns={main_field: main_field+'_sum'}, inplace=True)
         return titles_df
+
+    def analyze_harvest_metadata(self):
+        filenames = [filename for filename in os.listdir('Data/') if filename.startswith("metadata_")]
+        fetch_time = []
+        append_top_time = []
+        top_count = []
+        append_social_time = []
+        drop_duplicates_time = []
+        for file in filenames:
+            with open('data.json') as f:
+                data = json.load(f)
+                fetch_time.append(data['fetch_time'])
+                append_top_time.append(data['append_top_time'])
+                top_count.append(data['top_count'])
+                append_social_time.append(data['append_social_time'])
+                drop_duplicates_time.append(data['drop_duplicates_time'])
+        return [(min(fetch_time), max(fetch_time), np.mean(fetch_time)), \
+                (min(append_top_time), max(append_top_time), np.mean(append_top_time)), \
+                (min(top_count), max(top_count), np.mean(top_count)), \
+                (min(append_social_time), max(append_social_time), np.mean(append_social_time)), \
+                (min(drop_duplicates_time), max(drop_duplicates_time), np.mean(drop_duplicates_time))]
+        
+
+
 
 
     
