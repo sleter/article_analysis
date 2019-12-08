@@ -212,6 +212,12 @@ class DataPreprocessing():
             df.to_csv('Data/PreprocessedData/data_{}samples_{date:%Y-%m-%d_%H:%M:%S}.csv'.format(len(df.index),date=datetime.datetime.now()))
         else:
             df = pd.read_csv("{}".format(filename), index_col=0)
+            # Drop unwanted publishers
+            df.drop_duplicates(subset=["title", "source_id"], keep="last", inplace=True)
+            ap_df = df["source_name"].value_counts()
+            ap_df = ap_df[ap_df > len(df.index)*0.001]
+            # Drop unwanted publishers
+            df = df[df["source_name"].isin(self.publishers)]
             # Create column with minutes between publish and harvest time
             df = self.add_time_difference_column(df)
             # Drop not used columns
