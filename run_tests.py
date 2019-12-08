@@ -156,6 +156,7 @@ def main():
     # tm.test_create_nn_samples()
     # tm.publisher_top_articles_predictions_scenario()
     # tm.test_lstm()
+    # tm.test_gathering_all_available_data()
 
 if __name__== "__main__":
   main()
