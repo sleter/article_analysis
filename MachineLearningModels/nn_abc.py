@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import tensorflow as tf
+import matplotlib.pyplot as plt
 import numpy as np
 import ast, re
 from sklearn.model_selection import train_test_split
@@ -9,12 +10,13 @@ import numpy, datetime, re, json
 
 class AbstractNN(ABC):
     @abstractmethod
-    def __init__(self, submodule_name, version):
+    def __init__(self, submodule_name, version, filename):
         # print(__class__)
         print("Initializing ML submodule: {} \n -----------------------------".format(submodule_name))
         numpy.random.seed(42) # answer to the ultimate question of life, universe and everything
         self.name = submodule_name[33:-2].lower()
         self.version = version
+        self.filename = filename
         
     @abstractmethod
     def read_dataset(self, filename):
@@ -32,33 +34,68 @@ class AbstractNN(ABC):
         
     def split_dataset(self, df, Y_name = "top_article", astype = float, lstm = False, vocab_size = 70227, max_length = 7):
         if lstm:
+            neg, pos = np.bincount(df[Y_name])
+            total = neg + pos
+
             df['title'] = df['title'].astype(str)
             dataset_X = df.loc[:, df.columns != Y_name].values
             dataset_Y = df[Y_name].values
             X_train, X_test, y_train, y_test = train_test_split(dataset_X, dataset_Y, test_size=0.2, random_state=42)
+            X_train, X_val, y_train, y_val = train_test_split(dataset_X, dataset_Y, test_size=0.2, random_state=42)
 
-            X_train_meta = np.delete(X_train, 2, 1)
-            X_test_meta = np.delete(X_test, 2, 1)
-            X_train_nlp = X_train[:, [2]]
-            X_test_nlp = X_test[:, [2]]          
+            X_train_meta = np.delete(X_train, 1, 1)
+            X_test_meta = np.delete(X_test, 1, 1)
+            X_val_meta = np.delete(X_val, 1, 1)
+
+            X_train_nlp = X_train[:, [1]]
+            X_test_nlp = X_test[:, [1]]
+            X_val_nlp = X_val[:, [1]]
 
             encoded_titles_X_train = []
             encoded_titles_X_test = []
+            encoded_titles_X_val = []
+
             for title in X_train_nlp:
                 encoded_titles_X_train.append(one_hot(title[0], vocab_size))
             for title in X_test_nlp:
                 encoded_titles_X_test.append(one_hot(title[0], vocab_size))
+            for title in X_val_nlp:
+                encoded_titles_X_val.append(one_hot(title[0], vocab_size))
 
             padded_titles_X_train = pad_sequences(encoded_titles_X_train, maxlen=max_length, padding='post')
             padded_titles_X_test = pad_sequences(encoded_titles_X_test, maxlen=max_length, padding='post')
-            return padded_titles_X_train, padded_titles_X_test, X_train_meta, X_test_meta, y_train, y_test, X_train_meta.shape[1]
+            padded_titles_X_val = pad_sequences(encoded_titles_X_val, maxlen=max_length, padding='post')
+
+            print('Examples:\n    Total: {}\n    Positive: {} ({:.2f}% of total)\n'.format(total, pos, 100 * pos / total))
+
+            return padded_titles_X_train, padded_titles_X_test, padded_titles_X_val, X_train_meta, X_test_meta, X_val_meta, y_train, y_test, y_val, X_train_meta.shape[1], (neg, pos, total)
         else:
             dataset_X = df.loc[:, df.columns != Y_name].values
             dataset_Y = df[Y_name].values
             X = dataset_X.astype(astype)
+
             X_train, X_test, y_train, y_test = train_test_split(X, dataset_Y, test_size=0.2, random_state=42)
             return X_train, X_test, y_train, y_test, dataset_X.shape[1]
     
+    def plot_metrics(self, history, meta_text=""):
+        metrics =  ['loss', 'auc', 'precision', 'recall']
+        for n, metric in enumerate(metrics):
+            name = metric.replace("_"," ").capitalize()
+            plt.subplot(2,2,n+1)
+            plt.plot(history.epoch,  history.history[metric], color=self.colors[0], label='Train')
+            plt.plot(history.epoch, history.history["val_"+metric],color=self.colors[0], linestyle="--", label='Val')
+            plt.xlabel('Epoch')
+            plt.ylabel(name)
+            if metric == 'loss':
+                plt.ylim([0, plt.ylim()[1]])
+            elif metric == 'auc':
+                plt.ylim([0.8,1])
+            else:
+                plt.ylim([0,1])
+            plt.legend()
+        plt.savefig('MachineLearningModels/ModelsMetricsPlots/metrics_plot_{}_{date:%Y-%m-%d}.png'.format(meta_text, date = datetime.datetime.now()), bbox_inches='tight')
+
+
     def test_tensorflow(self):
         print("Tensorflow version: {}".format(tf.__version__))
         print("\nGPU available: {}".format(tf.test.is_gpu_available()))

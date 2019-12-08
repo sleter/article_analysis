@@ -210,5 +210,9 @@ class DataHarvester():
         start_date = filenames[0][9:-13]
         end_date = filenames[-1][9:-13]
         count = len(df.index)
+        # Drop duplicates
+        df.drop_duplicates(subset=["source_id", "title"], keep="last", inplace=True)
+        # Remove unwanted sources
+        df = df[df["source_id"].isin(self.sources)]
         df.to_csv("Data/GatheredData/data_gathered_{}-{}_{}".format(start_date,end_date,count))
 

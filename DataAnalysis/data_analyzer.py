@@ -1,15 +1,20 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
 import datetime
+import os, json
 import dateutil.parser
 
 class DataAnalyzer():
     def __init__(self, filename_path="PreprocessedData/data_9415samples_2019-10-15_15:06:32.csv"):
-        self.samples_df = pd.read_csv(filename_path, index_col=0)
+        sdf = pd.read_csv(filename_path, index_col=0)
+        sdf.drop_duplicates(subset=["title", "source_id"], keep="last", inplace=True)
+        ap_df = sdf["source_name"].value_counts()
+        ap_df = ap_df[ap_df > len(sdf.index)*0.001]
+        self.publishers = ap_df.index.tolist()
+        self.samples_df = sdf[sdf["source_name"].isin(self.publishers)]
         self.save_path = "DataAnalysis/"
-        self.pub_df = self.samples_df[self.samples_df.source_name != '460.0']
-        self.publishers = list(self.pub_df['source_name'].unique())
     
     def top_articles_percentage(self):
         ta_list = self.samples_df["top_article"].value_counts().tolist()
@@ -34,7 +39,6 @@ class DataAnalyzer():
     def engagement_per_publisher(self):
         epp = []
         df = self.samples_df[self.samples_df.source_name != 'ESPN']
-        df = df[df.source_name != '460.0']
         publishers = list(df['source_name'].unique())
         engagement_columns = ['engagement_reaction_count', 'engagement_comment_count', 'engagement_share_count']
         for ec in engagement_columns:
@@ -43,26 +47,52 @@ class DataAnalyzer():
         return publishers, epp
 
     def articles_per_publisher(self):
-        df = self.pub_df
-        publishers = self.publishers
+        df = self.samples_df
+        df = df.dropna(subset=['source_name', 'published_at'])
         def parse_date(date_string):
             do = dateutil.parser.parse(date_string)
             return do.date().isoformat()
+        print(df["source_name"].value_counts())
         df["published_at_day"] = df['published_at'].apply(lambda x : parse_date(x))
         df_date_pub = df.sort_values(['source_name', 'published_at_day'])
         dates_list = df_date_pub['published_at_day'].unique().tolist()
         df_date_pub = df.groupby(['published_at_day', 'source_name'])['source_name'].agg('count')
         list_date_pub = df_date_pub.tolist()
-        p_len = len(publishers)
+        p_len = len(self.publishers)
         ldp_chunks = [list_date_pub[x:x+p_len] for x in range(0, len(list_date_pub), p_len)]
-        return publishers, ldp_chunks, dates_list
+        return self.publishers, ldp_chunks, dates_list
 
     def top_n_liked_articles(self, n, main_field='engagement_reaction_count', grouping_fields=['title', 'source_name']):
         grouping_fields.append(main_field)
         df_liked = self.samples_df.sort_values([main_field], ascending=False)
+        df_liked = df_liked.dropna(subset=grouping_fields+[main_field])
         titles_df = df_liked[grouping_fields].head(n)
         titles_df.rename(columns={main_field: main_field+'_sum'}, inplace=True)
         return titles_df
+
+    def analyze_harvest_metadata(self):
+        filenames = [filename for filename in os.listdir('Data/') if filename.startswith("metadata_")]
+        fetch_time = []
+        append_top_time = []
+        top_count = []
+        append_social_time = []
+        drop_duplicates_time = []
+        for file in filenames:
+            with open('data.json') as f:
+                data = json.load(f)
+                fetch_time.append(data['fetch_time'])
+                append_top_time.append(data['append_top_time'])
+                top_count.append(data['top_count'])
+                append_social_time.append(data['append_social_time'])
+                drop_duplicates_time.append(data['drop_duplicates_time'])
+        return [(min(fetch_time), max(fetch_time), np.mean(fetch_time)), \
+                (min(append_top_time), max(append_top_time), np.mean(append_top_time)), \
+                (min(top_count), max(top_count), np.mean(top_count)), \
+                (min(append_social_time), max(append_social_time), np.mean(append_social_time)), \
+                (min(drop_duplicates_time), max(drop_duplicates_time), np.mean(drop_duplicates_time))]
+        
+
+
 
 
     
