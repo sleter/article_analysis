@@ -130,7 +130,7 @@ class DataPreprocessing():
                 'number_of_content_tokens': content_tokens,
                 'number_of_content_vectors': content_vectors,
             }
-            filename = 'categorical_embeddings_{date:%Y-%m-%d_%H:%M:%S}.csv'.format(date=datetime.datetime.now())
+            filename = 'categorical_embeddings_{date:%Y-%m-%d_%H_%M_%S}.csv'.format(date=datetime.datetime.now())
             df.to_csv('GoogleNewsModelData/EmbeddingsData/'+filename)
         elif word:
             (df, found_word_count, not_found_word_count, time_tokens), time_embeddings = self.create_embeddings()
@@ -140,9 +140,9 @@ class DataPreprocessing():
                 'found_word_count': found_word_count,
                 'not_found_word_count': not_found_word_count,
             }
-            filename = 'embeddings_{date:%Y-%m-%d_%H:%M:%S}.csv'.format(date=datetime.datetime.now())
+            filename = 'embeddings_{date:%Y-%m-%d_%H_%M_%S}.csv'.format(date=datetime.datetime.now())
             df.to_csv('GoogleNewsModelData/EmbeddingsData/'+filename)
-        with open('GoogleNewsModelData/EmbeddingsData/metadata_{date:%Y-%m-%d_%H:%M:%S}.json'.format(date=datetime.datetime.now()), 'w', encoding='utf-8') as f:
+        with open('GoogleNewsModelData/EmbeddingsData/metadata_{date:%Y-%m-%d_%H_%M_%S}.json'.format(date=datetime.datetime.now()), 'w', encoding='utf-8') as f:
             json.dump(metadata_dict, f, ensure_ascii=False, indent=4)
         return filename
     
@@ -209,7 +209,7 @@ class DataPreprocessing():
             df[scale_columns] = sc.fit_transform(df[scale_columns])
             df[['engagement_in_time','engagement_reaction_count','engagement_comment_count','engagement_share_count','engagement_comment_plugin_count','publish_harvest_time_period']] = sc.fit_transform(df[['engagement_in_time','engagement_reaction_count','engagement_comment_count','engagement_share_count','engagement_comment_plugin_count','publish_harvest_time_period']])
             
-            df.to_csv('Data/PreprocessedData/data_{}samples_{date:%Y-%m-%d_%H:%M:%S}.csv'.format(len(df.index),date=datetime.datetime.now()))
+            df.to_csv('Data/PreprocessedData/data_{}samples_{date:%Y-%m-%d_%H_%M_%S}.csv'.format(len(df.index),date=datetime.datetime.now()))
         else:
             df = pd.read_csv("{}".format(filename), index_col=0)
             # Drop unwanted publishers
@@ -246,7 +246,7 @@ class DataPreprocessing():
             # Scale columns
             df[scale_columns] = sc.fit_transform(df[scale_columns])
             df[['engagement_in_time','engagement_reaction_count','engagement_comment_count','engagement_share_count','engagement_comment_plugin_count','publish_harvest_time_period']] = sc.fit_transform(df[['engagement_in_time','engagement_reaction_count','engagement_comment_count','engagement_share_count','engagement_comment_plugin_count','publish_harvest_time_period']])
-            df.to_csv('Data/PreprocessedData/data_{}_lstm_samples_{date:%Y-%m-%d_%H:%M:%S}.csv'.format(len(df.index),date=datetime.datetime.now()))
+            df.to_csv('Data/PreprocessedData/data_{}_lstm_samples_{date:%Y-%m-%d_%H_%M_%S}.csv'.format(len(df.index),date=datetime.datetime.now()))
         if return_df:
             return df
         
