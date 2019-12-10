@@ -52,13 +52,13 @@ class DataAnalyzer():
         def parse_date(date_string):
             do = dateutil.parser.parse(date_string)
             return do.date().isoformat()
-        print(df["source_name"].value_counts())
         df["published_at_day"] = df['published_at'].apply(lambda x : parse_date(x))
         df_date_pub = df.sort_values(['source_name', 'published_at_day'])
         dates_list = df_date_pub['published_at_day'].unique().tolist()
-        df_date_pub = df.groupby(['published_at_day', 'source_name'])['source_name'].agg('count')
+
+        df_date_pub = df.groupby(['source_name', 'published_at_day'])['published_at_day'].agg('count')
         list_date_pub = df_date_pub.tolist()
-        p_len = len(self.publishers)
+        p_len = len(dates_list)
         ldp_chunks = [list_date_pub[x:x+p_len] for x in range(0, len(list_date_pub), p_len)]
         return self.publishers, ldp_chunks, dates_list
 

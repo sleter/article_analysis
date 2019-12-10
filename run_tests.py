@@ -14,6 +14,7 @@ from MachineLearningModels.lstm import Tensorflow_LSTM
 
 # from DataHarvesting.data_harvester import DataHarvester
 from Preprocessing.data_preprocessing import DataPreprocessing
+from DataAnalysis.data_analyzer import DataAnalyzer
 
 class TestModule():
     def __init__(self):
@@ -71,7 +72,7 @@ class TestModule():
         # dp = DataPreprocessing(filename='data_gathered_2019-09-03-2019-11-04_23535')
     
     def test_create_lstm_samples(self):
-        dp = DataPreprocessing(filename='Data/GatheredData/data_gathered_2019-09-03-2019-11-04_23535')
+        dp = DataPreprocessing(filename='GatheredData/data_gathered_2019-09-03-2019-11-04_23535')
         dp.create_samples(filename="Data/GatheredData/data_gathered_2019-09-03-2019-11-04_23535", embeddings=False)
 
     def test_create_nn_samples(self):
@@ -151,12 +152,14 @@ def main():
     tm = TestModule()
     # tm.test_snn()
     # tm.test_cnn()
-    tm.test_lstm()
-    # tm.test_create_samples()
+    # tm.test_lstm()
+    # tm.test_create_lstm_samples()
     # tm.test_create_nn_samples()
     # tm.publisher_top_articles_predictions_scenario()
     # tm.test_lstm()
     # tm.test_gathering_all_available_data()
+    # da = DataAnalyzer(filename_path="Data/GatheredData/data_gathered_2019-09-03-2019-11-04_23535")
+    # da.articles_per_publisher()
 
 if __name__== "__main__":
   main()

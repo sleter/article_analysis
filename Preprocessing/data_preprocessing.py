@@ -184,11 +184,11 @@ class DataPreprocessing():
         sc = StandardScaler()
 
         scale_columns = ['source_id_abc-news', 'source_id_al-jazeera-english',
-                'source_id_bbc-news', 'source_id_bloomberg',
+                'source_id_bbc-news', 
                 'source_id_business-insider', 'source_id_cbs-news', 'source_id_cnn',
                 'source_id_espn', 'source_id_newsweek', 'source_id_reuters',
-                'source_id_rte', 'source_id_the-irish-times',
-                'source_id_the-jerusalem-post', 'source_id_the-new-york-times',
+                'source_id_the-irish-times',
+                'source_id_the-new-york-times',
                 'source_id_the-wall-street-journal', 'author']
 
         if embeddings:
@@ -214,10 +214,12 @@ class DataPreprocessing():
             df = pd.read_csv("{}".format(filename), index_col=0)
             # Drop unwanted publishers
             df.drop_duplicates(subset=["title", "source_id"], keep="last", inplace=True)
-            ap_df = df["source_name"].value_counts()
-            ap_df = ap_df[ap_df > len(df.index)*0.001]
+            ap_df = df["source_id"].value_counts()
+            ap_df = ap_df[ap_df > len(df.index)*0.001].index.tolist()
+            # print(ap_df)
             # Drop unwanted publishers
-            df = df[df["source_name"].isin(self.publishers)]
+            df = df[df["source_id"].isin(ap_df)]
+            # print(df["source_id"].value_counts())
             # Create column with minutes between publish and harvest time
             df = self.add_time_difference_column(df)
             # Drop not used columns
