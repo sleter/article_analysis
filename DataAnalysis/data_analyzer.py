@@ -62,13 +62,15 @@ class DataAnalyzer():
         ldp_chunks = [list_date_pub[x:x+p_len] for x in range(0, len(list_date_pub), p_len)]
         return self.publishers, ldp_chunks, dates_list
 
-    def top_n_liked_articles(self, n, main_field='engagement_reaction_count', grouping_fields=['title', 'source_name']):
-        grouping_fields.append(main_field)
-        df_liked = self.samples_df.sort_values([main_field], ascending=False)
-        df_liked = df_liked.dropna(subset=grouping_fields+[main_field])
-        titles_df = df_liked[grouping_fields].head(n)
+    def top_n_liked_articles(self, n, sumi=False, main_field='engagement_reaction_count', grouping_fields=['title', 'source_name']):        
+        all_cols = grouping_fields+[main_field]
+        titles_df = self.samples_df.dropna(subset=all_cols)
+        titles_df = titles_df[all_cols]
+        if sumi:
+            titles_df = titles_df.groupby(grouping_fields).sum()
+        titles_df = titles_df.sort_values([main_field], ascending=False)
         titles_df.rename(columns={main_field: main_field+'_sum'}, inplace=True)
-        return titles_df
+        return titles_df.head(n)
 
     def analyze_harvest_metadata(self):
         filenames = [filename for filename in os.listdir('Data/') if filename.startswith("metadata_")]
@@ -78,7 +80,7 @@ class DataAnalyzer():
         append_social_time = []
         drop_duplicates_time = []
         for file in filenames:
-            with open('data.json') as f:
+            with open(file) as f:
                 data = json.load(f)
                 fetch_time.append(data['fetch_time'])
                 append_top_time.append(data['append_top_time'])
