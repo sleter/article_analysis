@@ -193,26 +193,43 @@ class DataPreprocessing():
 
         if embeddings:
             df = pd.read_csv('GoogleNewsModelData/EmbeddingsData/{}'.format(filename), index_col=0)
-            columns_to_drop = ["source_name", "title", "description", "url", "url_to_image", "published_at", "content", "harvested_at_date"]
+            # Drop unwanted duplicates
+            df.drop_duplicates(subset=["title", "source_id"], keep="last", inplace=True)
+            ap_df = df["source_id"].value_counts()
+            ap_df = ap_df[ap_df > len(df.index)*0.001].index.tolist()
+            # print(ap_df)
+            # Drop unwanted publishers
+            df = df[df["source_id"].isin(ap_df)]
+            # print(df["source_id"].value_counts())
+            # Create column with minutes between publish and harvest time
+            df = self.add_time_difference_column(df)
+            # Drop not used columns
+            columns_to_drop = ["source_name", "description", "title", "url", "url_to_image", "published_at", "content", "harvested_at_date"]
             df = df.drop(columns_to_drop, axis=1)
-            # Change label column (top_article) to ints and drop rows without labels
+            # Drop rows without labels
             df = df.dropna(subset=["source_id", 'top_article', 'author'])
-            df.top_article = df.top_article.astype(int)
             # Fill nan values with mean
             df = df.fillna(df.mean())
+            # Change label column (top_article) and other float columns to ints
+            df.top_article = df.top_article.astype(int)
+            df.engagement_reaction_count = df.engagement_reaction_count.astype(int)
+            df.engagement_comment_count = df.engagement_comment_count.astype(int)
+            df.engagement_share_count = df.engagement_share_count.astype(int)
+            df.engagement_comment_plugin_count = df.engagement_comment_plugin_count.astype(int)
             # Label categorical data
             df = pd.get_dummies(df, columns=['source_id'])
             df['author'] = le.fit_transform(df['author'].astype(str))
-            # Add column
+            # print("Number of tokens: {}".format(tokens))
+            # Add columns
             df['engagement_in_time'] = df['engagement_reaction_count']/df['publish_harvest_time_period']
             # Scale columns
             df[scale_columns] = sc.fit_transform(df[scale_columns])
             df[['engagement_in_time','engagement_reaction_count','engagement_comment_count','engagement_share_count','engagement_comment_plugin_count','publish_harvest_time_period']] = sc.fit_transform(df[['engagement_in_time','engagement_reaction_count','engagement_comment_count','engagement_share_count','engagement_comment_plugin_count','publish_harvest_time_period']])
-            
+            print(df.info())
             df.to_csv('Data/PreprocessedData/data_{}samples_{date:%Y-%m-%d_%H_%M_%S}.csv'.format(len(df.index),date=datetime.datetime.now()))
         else:
             df = pd.read_csv("{}".format(filename), index_col=0)
-            # Drop unwanted publishers
+            # Drop unwanted duplicates
             df.drop_duplicates(subset=["title", "source_id"], keep="last", inplace=True)
             ap_df = df["source_id"].value_counts()
             ap_df = ap_df[ap_df > len(df.index)*0.001].index.tolist()

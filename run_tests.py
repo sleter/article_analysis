@@ -9,7 +9,7 @@ from tensorflow.keras.preprocessing.text import one_hot
 
 from utils.helpers import custom_len
 
-from MachineLearningModels.nn import Simple_NN, Complex_NN
+from MachineLearningModels.nn import Simple_NN, Complex_NN, Complex_NN_title
 from MachineLearningModels.lstm import Tensorflow_LSTM
 
 # from DataHarvesting.data_harvester import DataHarvester
@@ -35,10 +35,10 @@ class TestModule():
         print("fit_optimize_eval_model process took: {}".format(time[1])+' seconds\n\n')
 
     def test_cnn(self):
-        cnn = Complex_NN(version="v03", filename="data_21154samples_2019-11-10_22:06:07")
+        cnn = Complex_NN(version="v03", filename="data_19734samples_2019-12-17_10_19_43")
         # Reading and splitting dataset
         # Creating, fitting and evaluating model (using custom hyperparameters)
-        time = cnn.fit_model(save=False ,epochs=20, batch_size=20, optimizer = 'adam',init = 'glorot_uniform')
+        time = cnn.fit_model(save=True ,epochs=15, batch_size=15, optimizer = 'adam',init = 'glorot_uniform')
         print("fit_model process took: {}".format(time[1])+' seconds\n\n')
         # Reading and splitting dataset
         # Choosing set of hyperparameters
@@ -49,10 +49,10 @@ class TestModule():
         print("fit_optimize_eval_model process took: {}".format(time[1])+' seconds\n\n')
 
     def test_lstm(self, save=True):
-        lstm = Tensorflow_LSTM(version="v02", filename="data_19016_lstm_samples_2019-11-10_21:49:27")
+        lstm = Tensorflow_LSTM(version="v03", filename="data_16533_lstm_samples_2019-12-10_10_41_58")
         # Reading and splitting dataset
         # Creating, fitting and evaluating model (using custom hyperparameters)
-        time = lstm.fit_model(save=save, epochs=10, batch_size=20, optimizer = 'adam',init = 'uniform')
+        time = lstm.fit_model(save=save, epochs=12, batch_size=25, optimizer = 'adam',init = 'uniform')
         print("fit_model process took: {}".format(time[1])+' seconds\n\n')
         # Optimizing hyperparameters for model and saving these
         # lstm.optimize_model()
@@ -83,14 +83,14 @@ class TestModule():
 
     def publisher_top_articles_predictions_scenario(self, custom_data={}):
         # Calculate metadate averages
-        df_all = pd.read_csv('Data/PreprocessedData/data_19016_lstm_samples_2019-11-10_21_49_27.csv', index_col=0)
+        df_all = pd.read_csv('Data/PreprocessedData/data_16533_lstm_samples_2019-12-10_10_41_58.csv', index_col=0)
         df_metadata = df_all.drop(columns=['title', 'top_article'], axis=1)
         # TRY USING MEDIAN INSTEAD OF MEAN
         averages = np.array(df_metadata.mean(axis=0).tolist())
         medians = np.array(df_metadata.median(axis=0).tolist())
 
         # Using day that wasn't used in training or evaluating model
-        df_day = pd.read_csv('Data/data_all_2019-11-04_200347.csv', index_col=0)
+        df_day = pd.read_csv('Data/data_all_2019-11-10_203224.csv', index_col=0)
 
         #### READ part of sample lstm to check predictions
 
@@ -135,7 +135,7 @@ class TestModule():
         averages = np.stack(arrays, axis=0)
 
         # Read model
-        model = tf.keras.models.load_model('MachineLearningModels/SavedModels/m.tensorflow_lstm_2019-11-21_v02.h5')
+        model = tf.keras.models.load_model('MachineLearningModels/SavedModels/m.tensorflow_lstm_2019-12-16_v03.h5')
 
         # Predict 
         predictions = model.predict([X, averages])
@@ -149,7 +149,16 @@ class TestModule():
         loss, accuracy, auc, precision, recall = model.evaluate([X, averages], y)
         print("\nINFO")
         print("loss: {} | accuracy: {} | auc: {} | precision: {} | recall: {}".format(loss, accuracy, auc, precision, recall))  
+        
 
+    def train_psmlmodel(self):
+        # cnn = Complex_NN_title(version="v01", filename="data_16533_lstm_samples_2019-12-10_10_41_58")
+        cnn = Complex_NN_title(version="v01", filename="data_19734samples_2019-12-17_10_19_43")
+        time = cnn.fit_model(save=False ,epochs = 20, batch_size = 15, optimizer = 'adam', init = 'glorot_uniform')
+        print("fit_model process took: {}".format(time[1])+' seconds\n\n')
+
+    def publisher_top_articles_predictions_scenario2(self, custom_data={}):
+        self.train_psmlmodel()
 
 
 
@@ -157,6 +166,7 @@ def main():
     tm = TestModule()
     # tm.test_snn()
     # tm.test_cnn()
+    tm.publisher_top_articles_predictions_scenario2()
     # tm.test_lstm()
     # tm.test_create_lstm_samples()
     # tm.test_create_nn_samples()
@@ -165,8 +175,9 @@ def main():
     # tm.test_gathering_all_available_data()
     # da = DataAnalyzer(filename_path="Data/GatheredData/data_gathered_2019-09-03-2019-11-04_23535")
     # da.articles_per_publisher()
-    da = DataAnalyzer(filename_path="Data/GatheredData/data_gathered_2019-09-03-2019-11-04_23535")
-    print(da.analyze_harvest_metadata())
+
+    # da = DataAnalyzer(filename_path="Data/GatheredData/data_gathered_2019-09-03-2019-11-04_23535")
+    # print(da.analyze_harvest_metadata())
 
 if __name__== "__main__":
   main()

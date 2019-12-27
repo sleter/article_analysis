@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 import tensorflow as tf
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import numpy as np
 import ast, re
 from sklearn.model_selection import train_test_split
@@ -17,6 +18,8 @@ class AbstractNN(ABC):
         self.name = submodule_name[33:-2].lower()
         self.version = version
         self.filename = filename
+        mpl.rcParams['figure.figsize'] = (12, 10)
+        self.colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
         
     @abstractmethod
     def read_dataset(self, filename):
@@ -32,11 +35,10 @@ class AbstractNN(ABC):
         with open('MachineLearningModels/SavedModels/metadata_{model_name}_{date:%Y-%m-%d}_{version}.json'.format(model_name = self.name, date = datetime.datetime.now(), version = self.version), 'w', encoding='utf-8') as f:
             json.dump(str(kwargs), f, ensure_ascii=False, indent=4)
         
-    def split_dataset(self, df, Y_name = "top_article", astype = float, lstm = False, vocab_size = 70227, max_length = 7):
+    def split_dataset(self, df, Y_name = "top_article", balance=True, astype = float, lstm = False, vocab_size = 70227, max_length = 7):
+        neg, pos = np.bincount(df[Y_name])
+        total = neg + pos
         if lstm:
-            neg, pos = np.bincount(df[Y_name])
-            total = neg + pos
-
             df['title'] = df['title'].astype(str)
             dataset_X = df.loc[:, df.columns != Y_name].values
             dataset_Y = df[Y_name].values
@@ -75,20 +77,24 @@ class AbstractNN(ABC):
             X = dataset_X.astype(astype)
 
             X_train, X_test, y_train, y_test = train_test_split(X, dataset_Y, test_size=0.2, random_state=42)
-            return X_train, X_test, y_train, y_test, dataset_X.shape[1]
+            return X_train, X_test, y_train, y_test, dataset_X.shape[1], (neg, pos, total)
     
-    def plot_metrics(self, history, meta_text=""):
-        metrics =  ['loss', 'auc', 'precision', 'recall']
+    def plot_metrics(self, history, val=True, meta_text=""):
+        if meta_text == "lstm" or meta_text == "cnn":
+            metrics =  ['loss', 'auc_1', 'precision_1', 'recall_1']
+        else:
+            metrics =  ['loss', 'auc', 'precision', 'recall']
         for n, metric in enumerate(metrics):
             name = metric.replace("_"," ").capitalize()
             plt.subplot(2,2,n+1)
             plt.plot(history.epoch,  history.history[metric], color=self.colors[0], label='Train')
-            plt.plot(history.epoch, history.history["val_"+metric],color=self.colors[0], linestyle="--", label='Val')
+            if val:
+                plt.plot(history.epoch, history.history["val_"+metric],color=self.colors[0], linestyle="--", label='Val')
             plt.xlabel('Epoch')
             plt.ylabel(name)
             if metric == 'loss':
                 plt.ylim([0, plt.ylim()[1]])
-            elif metric == 'auc':
+            elif metric == 'auc' or 'auc_1':
                 plt.ylim([0.8,1])
             else:
                 plt.ylim([0,1])

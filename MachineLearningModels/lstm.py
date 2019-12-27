@@ -3,7 +3,6 @@ import tempfile
 import tensorflow as tf
 import pandas as pd
 import numpy as np
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 import json, datetime
 from utils.helpers import timing
@@ -20,8 +19,6 @@ class Tensorflow_LSTM(AbstractNN):
     def __init__(self, version, filename):
         self.vocab_size = 70227
         self.max_length = 7
-        mpl.rcParams['figure.figsize'] = (12, 10)
-        self.colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
         super().__init__(str(__class__), version, filename)
         
     def read_dataset(self, filename="data_8502_lstm_samples_2019-10-27"):
@@ -35,7 +32,7 @@ class Tensorflow_LSTM(AbstractNN):
         nlp_input = Input(shape=(seq_length,), name='nlp_input')
         meta_input = Input(shape=(meta_length,), name='meta_input')
         emd_layer = Embedding(input_dim=vocab_size, output_dim=300, input_length=seq_length)(nlp_input)
-        nlp_output = Bidirectional(LSTM(128, dropout=0.2, recurrent_dropout=0.2, kernel_regularizer=tf.keras.regularizers.l2(0.01)))(emd_layer)
+        nlp_output = Bidirectional(LSTM(128, dropout=0.4, recurrent_dropout=0.2, kernel_regularizer=tf.keras.regularizers.l2(0.01)))(emd_layer)
         join_nlp_meta = concatenate([nlp_output, meta_input])
         join_nlp_meta = Dense(120, activation='relu')(join_nlp_meta)
         join_nlp_meta = Dense(30, activation='relu')(join_nlp_meta)
@@ -114,7 +111,7 @@ class Tensorflow_LSTM(AbstractNN):
         prehistory = model.fit(
             [X_train, X_train_meta],
             y_train,
-            epochs=epochs,
+            epochs=5,
             batch_size=batch_size,
             validation_data = ([X_val, X_val_meta], y_val),
             class_weight=class_weight)
@@ -140,9 +137,9 @@ class Tensorflow_LSTM(AbstractNN):
             validation_data = ([X_val, X_val_meta], y_val),
             class_weight=class_weight)
 
-        # print(history.history.keys())
-        # self.plot_metrics(prehistory, meta_text="lstm_pre")
-        # self.plot_metrics(history, meta_text="lstm")
+        print(history.history.keys())
+        self.plot_metrics(prehistory, meta_text="lstm_pre")
+        self.plot_metrics(history, meta_text="lstm")
 
         loss, accuracy, auc, precision, recall = model.evaluate([X_test, X_test_meta], y_test)
         print("\n\nEvaluation on test set\n")
@@ -150,7 +147,7 @@ class Tensorflow_LSTM(AbstractNN):
 
         if save:
             self.save_model(model)
-            self.save_metadata(loss = loss, accuracy = accuracy, auc=auc)
+            self.save_metadata(loss = loss, accuracy = accuracy, auc=auc, precision=precision, recall=recall)
 
 
 
