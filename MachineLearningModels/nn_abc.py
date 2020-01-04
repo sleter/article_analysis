@@ -43,7 +43,7 @@ class AbstractNN(ABC):
             dataset_X = df.loc[:, df.columns != Y_name].values
             dataset_Y = df[Y_name].values
             X_train, X_test, y_train, y_test = train_test_split(dataset_X, dataset_Y, test_size=0.2, random_state=42)
-            X_train, X_val, y_train, y_val = train_test_split(dataset_X, dataset_Y, test_size=0.2, random_state=42)
+            X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2, random_state=42)
 
             X_train_meta = np.delete(X_train, 1, 1)
             X_test_meta = np.delete(X_test, 1, 1)
