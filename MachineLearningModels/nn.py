@@ -132,32 +132,32 @@ class Complex_NN(AbstractNN):
         model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy', tf.keras.metrics.AUC(), tf.keras.metrics.Precision(), tf.keras.metrics.Recall()])
         return model
 
-        @timing
-        def fit_model(self, epochs, batch_size, init, optimizer, save=False):
-            df = self.read_dataset(self.filename)
+    @timing
+    def fit_model(self, epochs, batch_size, init, optimizer, save=False):
+        df = self.read_dataset(self.filename)
 
-            X_train, X_test, y_train, y_test, X_width, (neg, pos, total) = self.split_dataset(df)
+        X_train, X_test, y_train, y_test, X_width, (neg, pos, total) = self.split_dataset(df)
 
-            weight_for_0 = (1 / neg)*(total)/2.0
-            weight_for_1 = (1 / pos)*(total)/2.0
+        weight_for_0 = (1 / neg)*(total)/2.0
+        weight_for_1 = (1 / pos)*(total)/2.0
 
-            class_weight = {0: weight_for_0, 1: weight_for_1}
+        class_weight = {0: weight_for_0, 1: weight_for_1}
 
-            model = self.create_model(
-                X_width,
-                optimizer=optimizer,
-                init=init,
-                class_weight=class_weight)
-            hisotry = model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size)
+        model = self.create_model(
+            X_width,
+            optimizer=optimizer,
+            init=init,
+            class_weight=class_weight)
+        hisotry = model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size)
 
-            self.plot_metrics(hisotry, val=False, meta_text='cnn')
+        self.plot_metrics(hisotry, val=False, meta_text='cnn')
 
-            loss, accuracy, auc, precision, recall = model.evaluate(X_test, y_test)
-            print("\n\nEvaluation on test set\n")
-            print("loss: {} | accuracy: {} | auc: {} | precision: {} | recall: {}".format(loss, accuracy, auc, precision, recall))
-            if save:
-                self.save_model(model)
-                self.save_metadata(loss = loss, accuracy = accuracy, auc=auc, precision=precision, recall=recall)
+        loss, accuracy, auc, precision, recall = model.evaluate(X_test, y_test)
+        print("\n\nEvaluation on test set\n")
+        print("loss: {} | accuracy: {} | auc: {} | precision: {} | recall: {}".format(loss, accuracy, auc, precision, recall))
+        if save:
+            self.save_model(model)
+            self.save_metadata(loss = loss, accuracy = accuracy, auc=auc, precision=precision, recall=recall)
 
 class Complex_NN_title(AbstractNN):
     def __init__(self, version, filename):
