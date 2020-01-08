@@ -178,7 +178,7 @@ class DataPreprocessing():
         plt.tight_layout()
         plt.savefig("Preprocessing/"+filename)
         
-    def create_samples(self, filename, embeddings = True, return_df=False):
+    def create_samples(self, filename, embeddings = True, return_df=False, drop_title=True):
         le = LabelEncoder()
         ohe = OneHotEncoder()
         sc = StandardScaler()
@@ -205,6 +205,8 @@ class DataPreprocessing():
             df = self.add_time_difference_column(df)
             # Drop not used columns
             columns_to_drop = ["source_name", "description", "title", "url", "url_to_image", "published_at", "content", "harvested_at_date"]
+            if not drop_title:
+                columns_to_drop.remove("title")
             df = df.drop(columns_to_drop, axis=1)
             # Drop rows without labels
             df = df.dropna(subset=["source_id", 'top_article', 'author'])
@@ -225,8 +227,9 @@ class DataPreprocessing():
             # Scale columns
             df[scale_columns] = sc.fit_transform(df[scale_columns])
             df[['engagement_in_time','engagement_reaction_count','engagement_comment_count','engagement_share_count','engagement_comment_plugin_count','publish_harvest_time_period']] = sc.fit_transform(df[['engagement_in_time','engagement_reaction_count','engagement_comment_count','engagement_share_count','engagement_comment_plugin_count','publish_harvest_time_period']])
-            print(df.info())
-            df.to_csv('Data/PreprocessedData/data_{}samples_{date:%Y-%m-%d_%H_%M_%S}.csv'.format(len(df.index),date=datetime.datetime.now()))
+            # print(df.info())
+            filename = 'Data/PreprocessedData/data_{}samples_{date:%Y-%m-%d_%H_%M_%S}.csv'.format(len(df.index),date=datetime.datetime.now())
+            df.to_csv(filename)
         else:
             df = pd.read_csv("{}".format(filename), index_col=0)
             # Drop unwanted duplicates

@@ -199,8 +199,12 @@ class DataHarvester():
         df.to_csv("Data/data_top_{date:%Y-%m-%d_%H:%M:%S}.csv".format(date=date))
     
     @timing
-    def gather_all(self):
-        filenames = [filename for filename in os.listdir('Data/') if filename.startswith("data_all_")]
+    def gather_all(self, predefined_filenames = []):
+        if not predefined_filenames:
+            filenames = [filename for filename in os.listdir('Data/') if filename.startswith("data_all_")]
+        else:
+            filenames = predefined_filenames
+        
         df = pd.DataFrame()
         for filename in filenames:
             df_temp = pd.read_csv('Data/'+filename, index_col=0)
@@ -214,5 +218,9 @@ class DataHarvester():
         df.drop_duplicates(subset=["source_id", "title"], keep="last", inplace=True)
         # Remove unwanted sources
         df = df[df["source_id"].isin(self.sources)]
-        df.to_csv("Data/GatheredData/data_gathered_{}-{}_{}".format(start_date,end_date,count))
+        filepath = "Data/GatheredData/data_gathered_{}-{}_{}".format(start_date,end_date,count)
+        df.to_csv(filepath)
+        if predefined_filenames:
+            return filepath
+
 
