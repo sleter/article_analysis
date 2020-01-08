@@ -39,12 +39,12 @@ class Simple_NN(AbstractNN):
         model = KerasClassifier(build_fn=self.create_model, input_dim=X_width, verbose=1)
 
         #fisrt trial
-        init = ['glorot_uniform', 'normal'] 
+        init = ['glorot_uniform']#, 'normal'] 
         #second trial
         # init = ['lecun_uniform', 'normal', 'zero', 'glorot_normal', 'he_normal', 'he_uniform']        
 
-        optimizer = ['adam', 'rmsprop']
-        batch_sizes = [10, 20, 50]
+        optimizer = ['adam']#, 'rmsprop']
+        batch_sizes = [10]#, 20, 50]
         epochs = [10, 15]
 
         param_grid = dict(epochs=epochs, batch_size=batch_sizes, init=init, optimizer=optimizer)
@@ -57,16 +57,16 @@ class Simple_NN(AbstractNN):
         accs = gscv_result.cv_results_['mean_test_score']
         stds = gscv_result.cv_results_['std_test_score']
         params = gscv_result.cv_results_['params']
-        print(gscv_result.cv_results_.keys())
+        # print(gscv_result.cv_results_.keys())
 
-        # for acc, stdev, param in zip(accs, stds, params):
-        #     results['Accuracy='+str(acc)+'|Stdev='+str(stdev)] = param
+        for acc, stdev, param in zip(accs, stds, params):
+            results['Accuracy='+str(acc)+'|Stdev='+str(stdev)] = param
 
-        # with open('MachineLearningModels/OptimizationResults/{model_name}_{date:%Y-%m-%d}_{version}.json'.format(model_name = self.name, date = datetime.datetime.now(), version = self.version), 'w', encoding='utf-8') as f:
-        #     json.dump(results, f, ensure_ascii=False, indent=4)
+        with open('MachineLearningModels/OptimizationResults/{model_name}_{date:%Y-%m-%d}_{version}.json'.format(model_name = self.name, date = datetime.datetime.now(), version = self.version), 'w', encoding='utf-8') as f:
+            json.dump(results, f, ensure_ascii=False, indent=4)
 
-        # print(f'Best params: {gscv_result.best_params_}')
-        # return gscv_result.best_params_, X_train, X_test, y_train, y_test, X_width
+        print(f'Best params: {gscv_result.best_params_}')
+        return gscv_result.best_params_, X_train, X_test, y_train, y_test, X_width, (neg, pos, total)
 
     @timing
     def fit_optimize_eval_model(self, save=False):
@@ -83,6 +83,7 @@ class Simple_NN(AbstractNN):
             init=init)
 
         model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size)
+
         loss, accuracy, auc, precision, recall = model.evaluate(X_test, y_test)
         print("\n\nEvaluation on test set\n")
         print("loss: {} | accuracy: {} | auc: {} | precision: {} | recall: {}".format(loss, accuracy, auc, precision, recall))
@@ -107,7 +108,7 @@ class Simple_NN(AbstractNN):
         print("\n\nEvaluation on test set\n")
         print("loss: {} | accuracy: {} | auc: {} | precision: {} | recall: {}".format(loss, accuracy, auc, precision, recall))
         if save:
-            self.save_model(model)
+            filepath = self.save_model(model, return_name=True)
             self.save_metadata(loss = loss, accuracy = accuracy, auc=auc, precision=precision, recall=recall)
 
 

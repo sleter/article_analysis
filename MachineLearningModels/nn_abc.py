@@ -25,11 +25,14 @@ class AbstractNN(ABC):
     def read_dataset(self, filename):
         print("Reading {} dataset \n -----------------------------".format(filename))
 
-    def save_model(self, model):
-        model.save('MachineLearningModels/SavedModels/{model_name}_{date:%Y-%m-%d}_{version}.h5'.format( \
+    def save_model(self, model, return_name=False):
+        filename = 'MachineLearningModels/SavedModels/{model_name}_{date:%Y-%m-%d}_{version}.h5'.format( \
             model_name = self.name, \
             date = datetime.datetime.now(),\
-            version = self.version))
+            version = self.version)
+        model.save(filename)
+        if return_name:
+            return filename
 
     def save_metadata(self, **kwargs):
         with open('MachineLearningModels/SavedModels/metadata_{model_name}_{date:%Y-%m-%d}_{version}.json'.format(model_name = self.name, date = datetime.datetime.now(), version = self.version), 'w', encoding='utf-8') as f:
@@ -92,12 +95,13 @@ class AbstractNN(ABC):
                 plt.plot(history.epoch, history.history["val_"+metric],color=self.colors[0], linestyle="--", label='Val')
             plt.xlabel('Epoch')
             plt.ylabel(name)
-            if metric == 'loss':
-                plt.ylim([0, plt.ylim()[1]])
-            elif metric == 'auc' or 'auc_1':
-                plt.ylim([0.8,1])
-            else:
-                plt.ylim([0,1])
+            # if metric == 'loss':
+            #     plt.ylim([0, plt.ylim()[1]])
+            # elif metric == 'auc' or 'auc_1':
+            #     plt.ylim([0.8,1])
+            # else:
+            #     plt.ylim([0,1])
+            plt.ylim([0,1])
             plt.legend()
         plt.savefig('MachineLearningModels/ModelsMetricsPlots/metrics_plot_{}_{date:%Y-%m-%d}.png'.format(meta_text, date = datetime.datetime.now()), bbox_inches='tight')
 
