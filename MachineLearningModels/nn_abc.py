@@ -38,50 +38,62 @@ class AbstractNN(ABC):
         with open('MachineLearningModels/SavedModels/metadata_{model_name}_{date:%Y-%m-%d}_{version}.json'.format(model_name = self.name, date = datetime.datetime.now(), version = self.version), 'w', encoding='utf-8') as f:
             json.dump(str(kwargs), f, ensure_ascii=False, indent=4)
         
-    def split_dataset(self, df, Y_name = "top_article", balance=True, astype = float, lstm = False, vocab_size = 70227, max_length = 7):
+    def split_dataset(self, df, Y_name = "top_article", balance=True, astype = float, lstm = False, vocab_size = 70227, max_length = 7, val=True):
         neg, pos = np.bincount(df[Y_name])
         total = neg + pos
+
         if lstm:
             df['title'] = df['title'].astype(str)
             dataset_X = df.loc[:, df.columns != Y_name].values
             dataset_Y = df[Y_name].values
             X_train, X_test, y_train, y_test = train_test_split(dataset_X, dataset_Y, test_size=0.2, random_state=42)
-            X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2, random_state=42)
+            if val:
+                X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2, random_state=42)
 
             X_train_meta = np.delete(X_train, 1, 1)
             X_test_meta = np.delete(X_test, 1, 1)
-            X_val_meta = np.delete(X_val, 1, 1)
+            if val:
+                X_val_meta = np.delete(X_val, 1, 1)
 
             X_train_nlp = X_train[:, [1]]
             X_test_nlp = X_test[:, [1]]
-            X_val_nlp = X_val[:, [1]]
+            if val:
+                X_val_nlp = X_val[:, [1]]
 
             encoded_titles_X_train = []
             encoded_titles_X_test = []
-            encoded_titles_X_val = []
+            if val:
+                encoded_titles_X_val = []
 
             for title in X_train_nlp:
                 encoded_titles_X_train.append(one_hot(title[0], vocab_size))
             for title in X_test_nlp:
                 encoded_titles_X_test.append(one_hot(title[0], vocab_size))
-            for title in X_val_nlp:
-                encoded_titles_X_val.append(one_hot(title[0], vocab_size))
+            if val:
+                for title in X_val_nlp:
+                    encoded_titles_X_val.append(one_hot(title[0], vocab_size))
 
             padded_titles_X_train = pad_sequences(encoded_titles_X_train, maxlen=max_length, padding='post')
             padded_titles_X_test = pad_sequences(encoded_titles_X_test, maxlen=max_length, padding='post')
-            padded_titles_X_val = pad_sequences(encoded_titles_X_val, maxlen=max_length, padding='post')
+            if val:
+                padded_titles_X_val = pad_sequences(encoded_titles_X_val, maxlen=max_length, padding='post')
 
             print('Examples:\n    Total: {}\n    Positive: {} ({:.2f}% of total)\n'.format(total, pos, 100 * pos / total))
-
-            return padded_titles_X_train, padded_titles_X_test, padded_titles_X_val, X_train_meta, X_test_meta, X_val_meta, y_train, y_test, y_val, X_train_meta.shape[1], (neg, pos, total)
+            
+            if val:
+                return padded_titles_X_train, padded_titles_X_test, padded_titles_X_val, X_train_meta, X_test_meta, X_val_meta, y_train, y_test, y_val, X_train_meta.shape[1], (neg, pos, total)
+            else:
+                return padded_titles_X_train, padded_titles_X_test, X_train_meta, X_test_meta, y_train, y_test, X_train_meta.shape[1], (neg, pos, total)
         else:
             dataset_X = df.loc[:, df.columns != Y_name].values
             dataset_Y = df[Y_name].values
             X = dataset_X.astype(astype)
 
             X_train, X_test, y_train, y_test = train_test_split(X, dataset_Y, test_size=0.2, random_state=42)
+
             return X_train, X_test, y_train, y_test, dataset_X.shape[1], (neg, pos, total)
-    
+
+
     def plot_metrics(self, history, val=True, meta_text=""):
         if meta_text == "lstm" or meta_text == "cnn":
             metrics =  ['loss', 'auc_1', 'precision_1', 'recall_1']

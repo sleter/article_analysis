@@ -1,0 +1,152 @@
+{
+    "Best accuracy=0.9071387766795003": {
+        "batch_size": 20,
+        "epochs": 15,
+        "init": "normal",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.9034015331899885|Stdev=0.004108749479731909": {
+        "batch_size": 10,
+        "epochs": 10,
+        "init": "glorot_uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.9023246960106241|Stdev=0.001627510999710154": {
+        "batch_size": 10,
+        "epochs": 10,
+        "init": "glorot_uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.9060619406516793|Stdev=0.0021763918516100518": {
+        "batch_size": 10,
+        "epochs": 10,
+        "init": "normal",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.8990941730137297|Stdev=0.0016340345985635248": {
+        "batch_size": 10,
+        "epochs": 10,
+        "init": "normal",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.9011845151437365|Stdev=0.0011643075387923888": {
+        "batch_size": 10,
+        "epochs": 15,
+        "init": "glorot_uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.9011845241295511|Stdev=0.0003180018407637899": {
+        "batch_size": 10,
+        "epochs": 15,
+        "init": "glorot_uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.9041616471481118|Stdev=0.0026650508255799377": {
+        "batch_size": 10,
+        "epochs": 15,
+        "init": "normal",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.9007411093235227|Stdev=0.00033160644658204117": {
+        "batch_size": 10,
+        "epochs": 15,
+        "init": "normal",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.9027680921012396|Stdev=0.0027156014939442117": {
+        "batch_size": 20,
+        "epochs": 10,
+        "init": "glorot_uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.903781615767295|Stdev=0.0022426594517396445": {
+        "batch_size": 20,
+        "epochs": 10,
+        "init": "glorot_uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.9044783583366676|Stdev=0.0028397224826149812": {
+        "batch_size": 20,
+        "epochs": 10,
+        "init": "normal",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.9019446405568856|Stdev=0.0018730176077568078": {
+        "batch_size": 20,
+        "epochs": 10,
+        "init": "normal",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.9035282278216465|Stdev=0.003737920812720343": {
+        "batch_size": 20,
+        "epochs": 15,
+        "init": "glorot_uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.9023880360736172|Stdev=0.0014009072298763108": {
+        "batch_size": 20,
+        "epochs": 15,
+        "init": "glorot_uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.9071387766795003|Stdev=0.0009770229849008064": {
+        "batch_size": 20,
+        "epochs": 15,
+        "init": "normal",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.9006777795677876|Stdev=0.0021722723025991695": {
+        "batch_size": 20,
+        "epochs": 15,
+        "init": "normal",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.9044150146453688|Stdev=0.0027219850605268484": {
+        "batch_size": 50,
+        "epochs": 10,
+        "init": "glorot_uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.9039082634084287|Stdev=0.0025620327104997507": {
+        "batch_size": 50,
+        "epochs": 10,
+        "init": "glorot_uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.9039082869036908|Stdev=0.0035326323117520642": {
+        "batch_size": 50,
+        "epochs": 10,
+        "init": "normal",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.902894789783544|Stdev=0.0025558602769241243": {
+        "batch_size": 50,
+        "epochs": 10,
+        "init": "normal",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.9051751442644831|Stdev=0.002489237832700664": {
+        "batch_size": 50,
+        "epochs": 15,
+        "init": "glorot_uniform",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.9032114864626521|Stdev=0.002668557192482094": {
+        "batch_size": 50,
+        "epochs": 15,
+        "init": "glorot_uniform",
+        "optimizer": "rmsprop"
+    },
+    "Accuracy=0.9053651909955951|Stdev=0.0033523013797479746": {
+        "batch_size": 50,
+        "epochs": 15,
+        "init": "normal",
+        "optimizer": "adam"
+    },
+    "Accuracy=0.9037182558373456|Stdev=0.0021874204006208323": {
+        "batch_size": 50,
+        "epochs": 15,
+        "init": "normal",
+        "optimizer": "rmsprop"
+    }
+}

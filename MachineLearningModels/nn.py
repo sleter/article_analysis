@@ -39,12 +39,12 @@ class Simple_NN(AbstractNN):
         model = KerasClassifier(build_fn=self.create_model, input_dim=X_width, verbose=1)
 
         #fisrt trial
-        init = ['glorot_uniform']#, 'normal'] 
+        init = ['glorot_uniform', 'normal'] 
         #second trial
         # init = ['lecun_uniform', 'normal', 'zero', 'glorot_normal', 'he_normal', 'he_uniform']        
 
-        optimizer = ['adam']#, 'rmsprop']
-        batch_sizes = [10]#, 20, 50]
+        optimizer = ['adam', 'rmsprop']
+        batch_sizes = [10, 20, 50]
         epochs = [10, 15]
 
         param_grid = dict(epochs=epochs, batch_size=batch_sizes, init=init, optimizer=optimizer)
@@ -91,6 +91,18 @@ class Simple_NN(AbstractNN):
             self.save_model(model)
             self.save_metadata(loss = loss, accuracy = accuracy, auc=auc)
 
+    def custom_fit_(self, epochs, batch_size, init, optimizer, X_train, X_test, y_train, y_test, X_width, neg, pos, total):
+
+        model = self.create_model(
+            X_width,
+            optimizer=optimizer,
+            init=init)
+        hisotry = model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size)
+
+        loss, accuracy, auc, precision, recall = model.evaluate(X_test, y_test)
+        print("\n\nEvaluation on test set\n")
+        print("loss: {} | accuracy: {} | auc: {} | precision: {} | recall: {}".format(loss, accuracy, auc, precision, recall))
+
     @timing
     def fit_model(self, epochs, batch_size, init, optimizer, save=False):
         df = self.read_dataset(self.filename)
@@ -123,15 +135,32 @@ class Complex_NN(AbstractNN):
     def create_model(self, input_dim, optimizer='adam', init='glorot_uniform'):
         model = Sequential()
         model.add(Dense(60, input_dim=input_dim, kernel_initializer=init, activation=tf.nn.relu))
-        model.add(Dropout(0.3)),
+        model.add(Dropout(0.5))
         model.add(Dense(120, kernel_initializer=init, activation=tf.nn.relu))
-        model.add(Dropout(0.3))
+        model.add(Dropout(0.5))
         model.add(Dense(100, kernel_initializer=init, activation=tf.nn.relu))
-        model.add(Dropout(0.3))
+        model.add(Dropout(0.5))
         model.add(Dense(30, kernel_initializer=init, activation=tf.nn.relu))
+        model.add(Dropout(0.5))
         model.add(Dense(1, kernel_initializer=init, activation=tf.nn.sigmoid))
         model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy', tf.keras.metrics.AUC(), tf.keras.metrics.Precision(), tf.keras.metrics.Recall()])
         return model
+
+    def custom_fit_(self, epochs, batch_size, init, optimizer, X_train, X_test, y_train, y_test, X_width, neg, pos, total):
+        weight_for_0 = (1 / neg)*(total)/2.0
+        weight_for_1 = (1 / pos)*(total)/2.0
+
+        class_weight = {0: weight_for_0, 1: weight_for_1}
+
+        model = self.create_model(
+            X_width,
+            optimizer=optimizer,
+            init=init)
+        hisotry = model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size, class_weight=class_weight)
+
+        loss, accuracy, auc, precision, recall = model.evaluate(X_test, y_test)
+        print("\n\nEvaluation on test set\n")
+        print("loss: {} | accuracy: {} | auc: {} | precision: {} | recall: {}".format(loss, accuracy, auc, precision, recall))
 
     @timing
     def fit_model(self, epochs, batch_size, init, optimizer, save=False):
@@ -147,9 +176,13 @@ class Complex_NN(AbstractNN):
         model = self.create_model(
             X_width,
             optimizer=optimizer,
-            init=init,
+            init=init)
+        hisotry = model.fit(
+            X_train,
+            y_train,
+            epochs=epochs,
+            batch_size=batch_size,
             class_weight=class_weight)
-        hisotry = model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size)
 
         self.plot_metrics(hisotry, val=False, meta_text='cnn')
 
@@ -159,6 +192,67 @@ class Complex_NN(AbstractNN):
         if save:
             self.save_model(model)
             self.save_metadata(loss = loss, accuracy = accuracy, auc=auc, precision=precision, recall=recall)
+
+    def optimize_model(self):
+        df = self.read_dataset(self.filename)
+
+        X_train, X_test, y_train, y_test, X_width, (neg, pos, total) = self.split_dataset(df)
+
+        model = KerasClassifier(build_fn=self.create_model, input_dim=X_width, verbose=1)
+
+        #fisrt trial
+        init = ['glorot_uniform', 'normal'] 
+        #second trial
+        # init = ['lecun_uniform', 'normal', 'zero', 'glorot_normal', 'he_normal', 'he_uniform']        
+
+        optimizer = ['adam', 'rmsprop']
+        batch_sizes = [10, 20, 50]
+        epochs = [10, 15]
+
+        param_grid = dict(epochs=epochs, batch_size=batch_sizes, init=init, optimizer=optimizer)
+        gscv = GridSearchCV(estimator=model, param_grid=param_grid, cv=3)
+        gscv_result = gscv.fit(X_train, y_train)
+
+        results = {
+            'Best accuracy='+str(gscv_result.best_score_): gscv_result.best_params_
+        }
+        accs = gscv_result.cv_results_['mean_test_score']
+        stds = gscv_result.cv_results_['std_test_score']
+        params = gscv_result.cv_results_['params']
+        # print(gscv_result.cv_results_.keys())
+
+        for acc, stdev, param in zip(accs, stds, params):
+            results['Accuracy='+str(acc)+'|Stdev='+str(stdev)] = param
+
+        with open('MachineLearningModels/OptimizationResults/{model_name}_{date:%Y-%m-%d}_{version}.json'.format(model_name = self.name, date = datetime.datetime.now(), version = self.version), 'w', encoding='utf-8') as f:
+            json.dump(results, f, ensure_ascii=False, indent=4)
+
+        print(f'Best params: {gscv_result.best_params_}')
+        return gscv_result.best_params_, X_train, X_test, y_train, y_test, X_width, (neg, pos, total)
+
+
+    @timing
+    def fit_optimize_eval_model(self, save=False):
+        best_params, X_train, X_test, y_train, y_test, X_width, (neg, pos, total) = self.optimize_model()
+        
+        epochs = best_params['epochs']
+        batch_size = best_params['batch_size']
+        init = best_params['init']
+        optimizer = best_params['optimizer']
+
+        model = self.create_model(
+            X_width,
+            optimizer=optimizer,
+            init=init)
+
+        model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size)
+
+        loss, accuracy, auc, precision, recall = model.evaluate(X_test, y_test)
+        print("\n\nEvaluation on test set\n")
+        print("loss: {} | accuracy: {} | auc: {} | precision: {} | recall: {}".format(loss, accuracy, auc, precision, recall))
+        if save:
+            self.save_model(model)
+            self.save_metadata(loss = loss, accuracy = accuracy, auc=auc)
 
 class Complex_NN_title(AbstractNN):
     def __init__(self, version, filename):
