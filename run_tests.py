@@ -21,31 +21,31 @@ class TestModule():
         pass
 
     def test_snn(self):
-        nn = Simple_NN(version="v03", filename="data_19734samples_2019-12-17_10_19_43")
+        nn = Simple_NN(version="test", filename="data_19734samples_2019-12-17_10_19_43")
         # Reading and splitting dataset
         # Creating, fitting and evaluating model (using custom hyperparameters)
-        time = nn.fit_model(save=False ,epochs=20, batch_size=20, optimizer = 'adam',init = 'glorot_uniform')
+        time = nn.fit_model(save=False ,epochs=15, batch_size=20, optimizer = 'adam',init = 'normal')
         print("fit_model process took: {}".format(time[1])+' seconds\n\n')
         # Reading and splitting dataset
         # Choosing set of hyperparameters
         # Searching for best results using GridSearch
         # Saving all hyperparameters with their results
         # Using best parameters to fit, evaluate and save model
-        time = nn.fit_optimize_eval_model(save=False)
-        print("fit_optimize_eval_model process took: {}".format(time[1])+' seconds\n\n')
+        # time = nn.fit_optimize_eval_model(save=False)
+        # print("fit_optimize_eval_model process took: {}".format(time[1])+' seconds\n\n')
 
     def test_cnn(self):
         cnn = Complex_NN(version="v03", filename="data_19734samples_2019-12-17_10_19_43")
         # Reading and splitting dataset
         # Creating, fitting and evaluating model (using custom hyperparameters)
-        time = cnn.fit_model(save=True ,epochs=15, batch_size=15, optimizer = 'adam',init = 'glorot_uniform')
-        print("fit_model process took: {}".format(time[1])+' seconds\n\n')
+        # time = cnn.fit_model(save=True ,epochs=15, batch_size=15, optimizer = 'adam',init = 'glorot_uniform')
+        # print("fit_model process took: {}".format(time[1])+' seconds\n\n')
         # Reading and splitting dataset
         # Choosing set of hyperparameters
         # Searching for best results using GridSearch
         # Saving all hyperparameters with their results
         # Using best parameters to fit, evaluate and save model
-        time = cnn.fit_optimize_eval_model()
+        time = cnn.fit_optimize_eval_model(save=False)
         print("fit_optimize_eval_model process took: {}".format(time[1])+' seconds\n\n')
 
     def test_lstm(self, save=True):
@@ -58,27 +58,32 @@ class TestModule():
         # lstm.optimize_model()
         
     def test_getting_daily_articles(self):
-        dh = DataHarvester()    
+        dh = DataHarvester() 
         harvest_time = dh.harvest_daily()
         print("Process took: {}".format(harvest_time)+' seconds\n\n')
 
-    def test_gathering_all_available_data(self):
+    def test_gathering_all_available_data(self, all=False):
         dh = DataHarvester()
-        gathering_time = dh.gather_all()   
+        if all:
+            # Gathers all available articles data
+            gathering_time = dh.gather_all()
+        else:
+            # Gathers data for selected days
+            (dh_filepath, gathering_time) = dh.gather_all(predefined_filenames=['data_all_2020-01-16_12:45:53.csv'])
+            print("Filepath: {}".format(dh_filepath))
         print("Process took: {}".format(gathering_time)+' seconds\n\n')
 
     def test_preprocessing(self):
         dp = DataPreprocessing(filename='GatheredData/data_gathered_2019-09-03-2019-11-04_23535')
         dp.generate_wordcloud(filename="wordcloud2.png")
     
-    def test_create_lstm_samples(self):
+    def test_create_samples_for_embedding_layer(self):
         dp = DataPreprocessing(filename='GatheredData/data_gathered_2019-09-03-2019-11-04_23535')
         dp.create_samples(filename="Data/GatheredData/data_gathered_2019-09-03-2019-11-04_23535", embeddings=False)
 
-    def test_create_nn_samples(self):
+    def test_create_samples_with_embedding_columns(self):
         dp = DataPreprocessing(filename='GatheredData/data_gathered_2019-09-03-2019-11-04_23535')
         filename = dp.save_embeddings(columns=True, word=False)
-        # then run create_samples function with csv created with save_embeddings
         dp.create_samples(filename=filename, embeddings=True)
 
     def publisher_top_articles_predictions_scenario(self, custom_data={}):
@@ -151,17 +156,29 @@ class TestModule():
         print("loss: {} | accuracy: {} | auc: {} | precision: {} | recall: {}".format(loss, accuracy, auc, precision, recall))  
         
     def publisher_top_articles_predictions_scenario2(self, custom_data={}):
-        ### 1 
+        # # 1 
         # dh = DataHarvester()
-        # (dh_filepath, time) = dh.gather_all(predefined_filenames=['data_all_2020-01-06_15:41:12.csv'])
-        # print(dh_filepath)
-        ### 2
-        # dh_filepath = "Data/GatheredData/data_gathered_2020-01-06-2020-01-06_684"
+        # (dh_filepath, time) = dh.gather_all(predefined_filenames=[
+        #     # 'data_all_2019-11-10_20:32:24.csv'
+        #     # 'data_all_2020-01-06_15:41:12.csv'
+        #     # 'data_all_2020-01-07_17:46:57.csv'
+        #     'data_all_2019-11-07_19:40:36.csv'
+        #     ])
+        # # print(dh_filepath)
+        # ## 2
+        # # dh_filepath = "Data/GatheredData/data_gathered_2020-01-17-2020-01-17_488"
         # dp = DataPreprocessing(filename=dh_filepath[5:])
         # filename = dp.save_embeddings(columns=True, word=False)
         # df_day = dp.create_samples(filename=filename, embeddings=True, return_df=True, drop_title=False)
 
-        df_day = pd.read_csv("Data/PreprocessedData/data_583samples_2020-01-07_16_53_07.csv", index_col=0)
+        hpath = "Data/PreprocessedData/data_490samples_2020-01-18_17_03_52.csv"
+        # hpath = "Data/PreprocessedData/data_583samples_2020-01-18_17_04_28.csv"
+        # hpath = "Data/PreprocessedData/data_702samples_2020-01-18_17_01_24.csv"
+        
+        
+        # hpath = "Data/PreprocessedData/.csv"
+
+        df_day = pd.read_csv(hpath, index_col=0)
         
         # print(df_day.columns)
         unknowns = ['engagement_reaction_count',
@@ -185,9 +202,30 @@ class TestModule():
         df_out = df_day[["title", "top_article"]]
         df_out["preds"] = preds
 
-        df_out = df_out.sort_values(by=['preds'], ascending=False).head(10)
+        df_out = df_out.sort_values(by=['preds'], ascending=False).head(15)
         print(df_out[["title", "top_article"]])
 
+    def nn_comparison(self):
+        # # # cnn and nn
+        # nn = Simple_NN(version="v03", filename="data_19734samples_2019-12-17_10_19_43")
+        # cnn = Complex_NN(version="v03", filename="data_19734samples_2019-12-17_10_19_43")
+        
+        # df = nn.read_dataset(nn.filename)
+        # X_train, X_test, y_train, y_test, X_width, (neg, pos, total) = nn.split_dataset(df)
+        
+        # nn.custom_fit_(15, 20,'normal','adam', X_train, X_test, y_train, y_test, X_width, neg, pos, total)
+        # input("Press Enter to continue...")
+        # cnn.custom_fit_(15, 20,'normal','adam', X_train, X_test, y_train, y_test, X_width, neg, pos, total)
+        # input("Press Enter to continue...")
+        # # # lstm
+        lstm = Tensorflow_LSTM(version="v03", filename="data_16533_lstm_samples_2019-12-10_10_41_58")
+        # lstm.optimize_model()
+        _ = lstm.fit_model(save=False, epochs=5, batch_size=15, optimizer = 'adam',init = 'normal')
+        # input("Press Enter to continue...")
+        # lstm = Tensorflow_LSTM(version="v03", filename="data_16533_lstm_samples_2019-12-10_10_41_58")
+        # _ = lstm.fit_model(save=False, epochs=10, batch_size=20, optimizer = 'adam',init = 'normal')
+        
+        
 
 def main():
     tm = TestModule()
@@ -195,14 +233,17 @@ def main():
     # tm.test_getting_daily_articles()
     # Gathering data
     # tm.test_gathering_all_available_data()
-    # Data preprocessing - generating wordcloud
-    # tm.test_preprocessing()
+    # Data preprocessing - creating samples
+    # tm.test_create_samples_for_embedding_layer()
+    # tm.test_create_samples_with_embedding_columns()
     # Training, optimizing and evaluating model
     #     init = ['glorot_uniform', 'normal'] 
     #     optimizer = ['adam', 'rmsprop']
     #     batch_sizes = [10, 20, 50]
     #     epochs = [10, 15]
     # tm.test_snn()
+    # tm.test_cnn()
+    # tm.nn_comparison()
     # Publisher scenario
     tm.publisher_top_articles_predictions_scenario2()
 
