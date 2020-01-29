@@ -184,7 +184,7 @@ class Complex_NN(AbstractNN):
             batch_size=batch_size,
             class_weight=class_weight)
 
-        self.plot_metrics(hisotry, val=False, meta_text='cnn')
+        # self.plot_metrics(hisotry, val=False, meta_text='cnn')
 
         loss, accuracy, auc, precision, recall = model.evaluate(X_test, y_test)
         print("\n\nEvaluation on test set\n")
